@@ -1,0 +1,634 @@
+// src/app/conversation/demo/page.tsx
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, ChevronDown, ArrowUp, Plus, List } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { SearchOverlay } from '@/components/search/SearchOverlay';
+import { useCommandK } from '@/hooks/useCommandK';
+import ClaudeThinkingIcon from '@/components/ui/ClaudeThinkingIcon';
+import { TOPICS } from '@/data/topics';
+import type { TopicId } from '@/types';
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const USER_MESSAGE =
+  "My Supabase edge function keeps timing out when I try to batch insert 500 rows. I'm using the JS client. What's the best way to handle bulk inserts?";
+
+const ASSISTANT_RESPONSE = `The JS client isn't optimized for large batch inserts. Each .insert() call goes through PostgREST, which adds overhead per row.
+
+For 500 rows, switch to a database function that accepts a JSON array and does the insert server-side:
+
+\`\`\`sql
+create or replace function bulk_insert_orders(payload jsonb)
+returns void as $$
+begin
+  insert into orders (customer_id, amount, status)
+  select
+    (item->>'customer_id')::uuid,
+    (item->>'amount')::numeric,
+    (item->>'status')::text
+  from jsonb_array_elements(payload) as item;
+end;
+$$ language plpgsql;
+\`\`\`
+
+Then call it from your edge function:
+
+\`\`\`typescript
+const { error } = await supabase.rpc('bulk_insert_orders', {
+  payload: JSON.stringify(rows)
+});
+\`\`\`
+
+This sends one request instead of 500. Should complete well under the 25s edge function timeout.
+
+One thing to watch: if any row fails validation, the entire batch rolls back. Add error handling per-row if you need partial inserts.`;
+
+// ---------------------------------------------------------------------------
+// Code-block parser (same logic as [id] page)
+// ---------------------------------------------------------------------------
+
+function parseContent(content: string) {
+  const parts: { type: 'text' | 'code'; content: string }[] = [];
+  const segments = content.split('```');
+
+  segments.forEach((segment, i) => {
+    if (i % 2 === 0) {
+      if (segment) parts.push({ type: 'text', content: segment });
+    } else {
+      const lines = segment.split('\n');
+      const firstLine = lines[0]?.trim();
+      const hasLang =
+        firstLine && !firstLine.includes(' ') && lines.length > 1;
+      const code = hasLang ? lines.slice(1).join('\n') : segment;
+      parts.push({ type: 'code', content: code.trim() });
+    }
+  });
+
+  return parts;
+}
+
+// ---------------------------------------------------------------------------
+// Organize prompt sub-components
+// ---------------------------------------------------------------------------
+
+function OrganizeIcon() {
+  return (
+    <div
+      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+      style={{
+        color: 'var(--text-info)',
+        backgroundColor:
+          'color-mix(in srgb, var(--text-info) 20%, transparent)',
+      }}
+    >
+      <List size={18} />
+    </div>
+  );
+}
+
+function OrganizeHeader() {
+  return (
+    <>
+      <p
+        className="text-[14px] font-medium"
+        style={{ color: 'var(--text-primary)' }}
+      >
+        Organize this conversation?
+      </p>
+      <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
+        This looks like a{' '}
+        <span
+          className="inline-block rounded text-[11px] font-medium text-white align-middle"
+          style={{ backgroundColor: '#4682D5', padding: '1px 7px' }}
+        >
+          Code
+        </span>{' '}
+        conversation about Supabase edge functions and bulk inserts.
+      </p>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
+type Phase = 'idle' | 'user' | 'thinking' | 'response' | 'organize';
+type OrgState = 'prompt' | 'accept' | 'edit' | 'dismissed';
+
+export default function DemoPage() {
+  const router = useRouter();
+
+  // Layout state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Demo state machine
+  const [inputText, setInputText] = useState(USER_MESSAGE);
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [organizeState, setOrganizeState] = useState<OrgState>('prompt');
+  const [selectedTopic, setSelectedTopic] = useState<TopicId>('code');
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-collapse sidebar below 1024px
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) setIsSidebarOpen(false);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const openSearch = useCallback(() => setIsSearchOpen(true), []);
+  const closeSearch = useCallback(() => setIsSearchOpen(false), []);
+  useCommandK(openSearch, closeSearch);
+
+  const toggleSidebar = useCallback(
+    () => setIsSidebarOpen((prev) => !prev),
+    [],
+  );
+  const handleConversationClick = useCallback(
+    (id: string) => router.push(`/conversation/${id}`),
+    [router],
+  );
+
+  // Auto-scroll whenever phase or organizeState changes
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [phase, organizeState, scrollToBottom]);
+
+  // Send handler — kicks off the timed sequence
+  const handleSend = useCallback(() => {
+    if (phase !== 'idle') return;
+    setInputText('');
+    setPhase('user');
+
+    setTimeout(() => setPhase('thinking'), 800);
+    setTimeout(() => setPhase('response'), 2500);
+    setTimeout(() => setPhase('organize'), 3300);
+  }, [phase]);
+
+  const assistantParts = parseContent(ASSISTANT_RESPONSE);
+  const selectedTopicData = TOPICS.find((t) => t.id === selectedTopic);
+
+  return (
+    <div className="flex h-screen w-full bg-[var(--surface-app)] overflow-hidden font-[family-name:var(--font-sans)]">
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onToggle={toggleSidebar}
+        onClose={() => setIsSidebarOpen(false)}
+        onSearchClick={openSearch}
+        onConversationClick={handleConversationClick}
+      />
+
+      {/* Main content */}
+      <main className="flex-1 relative flex flex-col overflow-hidden">
+        {/* Header */}
+        <div
+          className="sticky top-0 z-20 pl-12 pr-4 md:px-6 py-3 min-h-[60px] lg:min-h-0 flex items-center backdrop-blur-md border-b-[0.5px] border-[var(--border-tertiary)]"
+          style={{
+            backgroundColor:
+              'color-mix(in srgb, var(--surface-app) 85%, transparent)',
+          }}
+        >
+          <div className="max-w-[720px] mx-auto flex items-center w-full">
+            <div className="flex items-center gap-1.5">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1 shrink-0 text-[14px] font-medium transition-colors duration-150"
+                style={{ color: 'var(--text-tertiary)' }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = 'var(--text-primary)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = 'var(--text-tertiary)')
+                }
+              >
+                <ArrowLeft size={16} strokeWidth={2} />
+                Chats
+              </Link>
+              <span
+                className="text-[14px] shrink-0"
+                style={{ color: 'var(--text-ghost)' }}
+              >
+                /
+              </span>
+              <span
+                className="text-sm md:text-[14px] font-semibold"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                New chat
+              </span>
+              <span className="shrink-0 w-6 h-6 flex items-center justify-center">
+                <ChevronDown
+                  size={14}
+                  className="text-[var(--text-tertiary)]"
+                />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Chat area */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6 pb-[160px]">
+            {/* User message */}
+            <AnimatePresence>
+              {phase !== 'idle' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex justify-end"
+                >
+                  <div className="max-w-[85%]">
+                    <div
+                      className="px-[18px] py-[14px] md:px-4 md:py-3 rounded-2xl"
+                      style={{
+                        backgroundColor: 'var(--surface-message-user)',
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '15px',
+                        lineHeight: '1.5',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      {USER_MESSAGE}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Thinking indicator */}
+            <AnimatePresence>
+              {phase === 'thinking' && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-6"
+                >
+                  <ClaudeThinkingIcon size={20} isThinking />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Assistant response */}
+            <AnimatePresence>
+              {(phase === 'response' || phase === 'organize') && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-6"
+                >
+                  <div
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '15px',
+                      lineHeight: '1.6',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {assistantParts.map((part, i) =>
+                      part.type === 'code' ? (
+                        <pre
+                          key={i}
+                          className="my-3 rounded-lg p-4 overflow-x-auto text-[13px] leading-relaxed"
+                          style={{
+                            backgroundColor: 'var(--bg-secondary)',
+                            fontFamily: 'var(--font-mono)',
+                          }}
+                        >
+                          <code>{part.content}</code>
+                        </pre>
+                      ) : (
+                        <div key={i}>
+                          {part.content
+                            .split('\n\n')
+                            .map((para, j) =>
+                              para.trim() ? (
+                                <p key={j} className={j > 0 ? 'mt-4' : ''}>
+                                  {para}
+                                </p>
+                              ) : null,
+                            )}
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Organize prompt */}
+            {phase === 'organize' && organizeState !== 'dismissed' && (
+              <AnimatePresence mode="wait">
+                {/* ---- Card (shared shell for prompt & edit) ---- */}
+                {(organizeState === 'prompt' || organizeState === 'edit') && (
+                  <motion.div
+                    key="card"
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.4,
+                      ease: [0.16, 1, 0.3, 1],
+                      layout: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+                    }}
+                    className="mt-6 rounded-xl border"
+                    style={{
+                      borderColor: 'var(--border-secondary)',
+                      backgroundColor: 'var(--bg-primary)',
+                      padding: '16px 20px',
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <OrganizeIcon />
+                      <div className="flex-1 min-w-0">
+                        <OrganizeHeader />
+
+                        {/* Topic pills — only in edit mode */}
+                        <AnimatePresence initial={false}>
+                          {organizeState === 'edit' && (
+                            <motion.div
+                              key="pills"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{
+                                duration: 0.3,
+                                ease: [0.16, 1, 0.3, 1],
+                              }}
+                              className="overflow-hidden"
+                            >
+                              <div
+                                className="mt-3 py-3 border-t border-b"
+                                style={{
+                                  borderColor: 'var(--border-tertiary)',
+                                }}
+                              >
+                                <div className="flex flex-wrap gap-2">
+                                  {TOPICS.map((topic) => {
+                                    const isSelected =
+                                      selectedTopic === topic.id;
+                                    return (
+                                      <button
+                                        key={topic.id}
+                                        onClick={() =>
+                                          setSelectedTopic(topic.id)
+                                        }
+                                        className="flex items-center gap-1.5 rounded-lg text-[13px] font-medium transition-colors"
+                                        style={{
+                                          padding: '6px 12px',
+                                          border: `1.5px solid ${isSelected ? topic.color : 'var(--border-tertiary)'}`,
+                                          backgroundColor: isSelected
+                                            ? `color-mix(in srgb, ${topic.color} 20%, transparent)`
+                                            : 'transparent',
+                                          color: isSelected
+                                            ? topic.color
+                                            : 'var(--text-secondary)',
+                                        }}
+                                      >
+                                        <span
+                                          className="w-2 h-2 rounded-full shrink-0"
+                                          style={{
+                                            backgroundColor: topic.color,
+                                          }}
+                                        />
+                                        {topic.name}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Buttons — cross-fade between prompt / edit variants */}
+                        <AnimatePresence mode="wait" initial={false}>
+                          {organizeState === 'prompt' && (
+                            <motion.div
+                              key="prompt-btns"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="flex items-center gap-2 mt-3"
+                            >
+                              <button
+                                onClick={() => setOrganizeState('accept')}
+                                className="text-[13px] font-medium text-white rounded-lg transition-opacity hover:opacity-85"
+                                style={{
+                                  backgroundColor: '#4682D5',
+                                  padding: '7px 16px',
+                                }}
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => setOrganizeState('edit')}
+                                className="text-[13px] font-medium rounded-lg transition-colors hover:bg-[var(--bg-secondary)]"
+                                style={{
+                                  border: '1px solid var(--border-secondary)',
+                                  color: 'var(--text-secondary)',
+                                  padding: '7px 16px',
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => setOrganizeState('dismissed')}
+                                className="text-[13px] font-medium transition-colors text-[var(--text-ghost)] hover:text-[var(--text-secondary)]"
+                                style={{
+                                  padding: '7px 16px',
+                                }}
+                              >
+                                Dismiss
+                              </button>
+                            </motion.div>
+                          )}
+                          {organizeState === 'edit' && (
+                            <motion.div
+                              key="edit-btns"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="flex items-center gap-2 mt-3"
+                            >
+                              <button
+                                onClick={() => setOrganizeState('accept')}
+                                className="text-[13px] font-medium text-white rounded-lg transition-opacity hover:opacity-85"
+                                style={{
+                                  backgroundColor:
+                                    selectedTopicData?.color ?? '#4682D5',
+                                  padding: '7px 16px',
+                                }}
+                              >
+                                Organize as {selectedTopicData?.name}
+                              </button>
+                              <button
+                                onClick={() => setOrganizeState('prompt')}
+                                className="text-[13px] font-medium transition-colors text-[var(--text-ghost)] hover:text-[var(--text-secondary)]"
+                                style={{
+                                  padding: '7px 16px',
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ---- Accept state ---- */}
+                {organizeState === 'accept' && (
+                  <motion.div
+                    key="accept"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-6 flex items-center gap-2"
+                  >
+                    <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
+                      <circle cx={8} cy={8} r={8} fill="#4682D5" />
+                      <path
+                        d="M4.5 8L7 10.5L11.5 6"
+                        stroke="white"
+                        strokeWidth={1.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <span
+                      className="text-[13px]"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      Organized under{' '}
+                      <span
+                        className="font-semibold"
+                        style={{ color: '#4682D5' }}
+                      >
+                        Code
+                      </span>
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
+          </div>
+        </div>
+
+        {/* Input bar */}
+        <div
+          className="absolute bottom-0 left-0 right-0 flex justify-center pt-4 pb-4 md:pb-6 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, transparent, var(--surface-app) 30%)',
+          }}
+        >
+          <div
+            className="w-full pointer-events-auto"
+            style={{ maxWidth: 'var(--chat-input-width)', padding: '0 16px' }}
+          >
+            <div
+              className="flex flex-col border-[0.5px] border-[var(--border-tertiary)] overflow-hidden"
+              style={{
+                backgroundColor: 'var(--surface-input)',
+                borderRadius: 'var(--chat-input-radius)',
+                boxShadow: 'var(--shadow-md)',
+              }}
+            >
+              {/* Text area row */}
+              <div className="px-4 pt-4 pb-2 min-h-[44px]">
+                {inputText ? (
+                  <p
+                    className="text-[15px]"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {inputText}
+                  </p>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[var(--text-ghost)] text-[15px]">
+                      How can Claude help you today?
+                    </span>
+                    <span
+                      className="w-[2px] h-[18px] bg-[var(--text-tertiary)] cursor-blink"
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Toolbar row */}
+              <div className="flex items-center justify-between px-3 pb-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    aria-label="Attach file"
+                    className="flex items-center justify-center w-8 h-8 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                  >
+                    <Plus size={18} strokeWidth={1.5} />
+                  </button>
+                  <button
+                    className="flex items-center gap-1 px-2 h-7 rounded-[var(--radius-sm)] text-[12px] font-medium text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    aria-label="Select model"
+                  >
+                    <span>Sonnet 4.5</span>
+                    <ChevronDown size={12} />
+                  </button>
+                </div>
+
+                <button
+                  aria-label="Send message"
+                  onClick={handleSend}
+                  disabled={phase !== 'idle'}
+                  className="flex items-center justify-center w-8 h-8 text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  style={{
+                    backgroundColor: 'var(--accent-primary)',
+                    borderRadius: 'var(--interactive-radius)',
+                  }}
+                >
+                  <ArrowUp size={16} strokeWidth={2} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Search overlay */}
+      <SearchOverlay
+        isOpen={isSearchOpen}
+        onClose={closeSearch}
+        onNavigate={handleConversationClick}
+      />
+    </div>
+  );
+}

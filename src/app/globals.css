@@ -1,0 +1,308 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4", "Georgia", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+}
+
+/* =============================================================
+   Claude Design Tokens
+   Extracted from: Anthropic MCP Apps for Claude (Community) UI Kit
+   Source: Figma Variables + Component Code
+
+   Font substitutions:
+   - DM Sans → replaces Anthropic Sans Text
+   - Source Serif 4 → replaces Anthropic Serif Text
+   - JetBrains Mono → unchanged (free)
+
+   Usage: Import this file at the root of your project.
+   Dark mode activates via [data-theme="dark"] on <html> or <body>.
+   ============================================================= */
+
+:root {
+  /* -----------------------------------------------------------
+     BORDER
+     ----------------------------------------------------------- */
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-full: 999px;
+
+  /* Width */
+  --border-width-regular: 0.5px;
+
+  /* -----------------------------------------------------------
+     TYPOGRAPHY
+     ----------------------------------------------------------- */
+
+  /* Font Family */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4", "Georgia", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+
+  /* Font Weight */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Text Size */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+
+  /* Heading Size */
+  --heading-xs: 12px;
+  --heading-sm: 14px;
+  --heading-md: 16px;
+  --heading-lg: 20px;
+  --heading-xl: 24px;
+  --heading-2xl: 28px;
+  --heading-3xl: 36px;
+
+  /* Line Height - Text */
+  --leading-text-xs: 16.8px;
+  --leading-text-sm: 19.6px;
+  --leading-text-md: 22.4px;
+
+  /* Line Height - Heading */
+  --leading-heading-xs: 16.8px;
+  --leading-heading-sm: 19.6px;
+  --leading-heading-md: 22.4px;
+  --leading-heading-lg: 25px;
+  --leading-heading-xl: 30px;
+  --leading-heading-2xl: 30.8px;
+  --leading-heading-3xl: 36px;
+
+  /* -----------------------------------------------------------
+     COLORS - LIGHT MODE (default)
+     ----------------------------------------------------------- */
+
+  /* Background */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F4ED;
+  --bg-tertiary: #FAF9F5;
+  --bg-inverse: #141413;
+  --bg-ghost: rgba(255, 255, 255, 0);
+  --bg-info: #D6E4F6;
+  --bg-danger: #B53333;
+  --bg-success: #E9F1DC;
+  --bg-warning: #F6EEDF;
+  --bg-disabled: rgba(255, 255, 255, 0.5);
+
+  /* Text */
+  --text-primary: #141413;
+  --text-secondary: #3D3D3A;
+  --text-tertiary: #73726C;
+  --text-inverse: #FFFFFF;
+  --text-info: #3266AD;
+  --text-danger: #7F2C28;
+  --text-success: #265B19;
+  --text-warning: #5A4815;
+  --text-disabled: rgba(20, 20, 19, 0.5);
+  --text-ghost: rgba(115, 114, 108, 0.5);
+
+  /* Border */
+  --border-primary: rgba(31, 30, 29, 0.4);
+  --border-secondary: rgba(31, 30, 29, 0.3);
+  --border-tertiary: rgba(31, 30, 29, 0.15);
+  --border-inverse: rgba(255, 255, 255, 0.3);
+  --border-ghost: rgba(31, 30, 29, 0);
+  --border-info: #4682D5;
+  --border-danger: #A73D39;
+  --border-success: #437426;
+  --border-warning: #805C1F;
+  --border-disabled: rgba(31, 30, 29, 0.1);
+
+  /* Ring (focus states) */
+  --ring-primary: rgba(20, 20, 19, 0.7);
+  --ring-secondary: rgba(61, 61, 58, 0.7);
+  --ring-inverse: rgba(255, 255, 255, 0.7);
+  --ring-info: rgba(50, 102, 173, 0.5);
+  --ring-danger: rgba(167, 61, 57, 0.5);
+  --ring-success: rgba(67, 116, 38, 0.5);
+  --ring-warning: rgba(128, 92, 31, 0.5);
+
+  /* -----------------------------------------------------------
+     COMPONENT TOKENS (derived from code reference)
+     ----------------------------------------------------------- */
+
+  /* Accent (Claude brand) */
+  --accent-primary: #C6613F;
+  --accent-avatar: #C46686;
+
+  /* Surfaces */
+  --surface-app: #FAF9F5;
+  --surface-card: #FFFFFF;
+  --surface-sidebar: #FAF9F5;
+  --surface-input: #FFFFFF;
+  --surface-message-user: #F0EEE6;
+  --surface-hover: rgba(31, 30, 29, 0.05);
+
+  /* Sidebar button active */
+  --sidebar-button-active-bg: rgba(31, 30, 29, 0.08);
+
+  /* Shadows */
+  --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0px 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* Sidebar */
+  --sidebar-width-collapsed: 52px;
+  --sidebar-icon-size: 20px;
+  --sidebar-button-size: 36px;
+  --sidebar-avatar-size: 28px;
+
+  /* Chat */
+  --chat-max-width: 720px;
+  --chat-input-width: 752px;
+  --chat-input-radius: 16px;
+
+  /* Interactive */
+  --interactive-radius: 8px;
+  --card-radius: 10px;
+  --container-radius: 16px;
+}
+
+/* -----------------------------------------------------------
+   COLORS - DARK MODE
+   ----------------------------------------------------------- */
+
+[data-theme="dark"] {
+  /* Background */
+  --bg-primary: #30302E;
+  --bg-secondary: #262624;
+  --bg-tertiary: #141413;
+  --bg-inverse: #FAF9F5;
+  --bg-ghost: rgba(48, 48, 46, 0);
+  --bg-info: #253E5F;
+  --bg-danger: #DD5353;
+  --bg-success: #1B4614;
+  --bg-warning: #483A0F;
+  --bg-disabled: rgba(48, 48, 46, 0.5);
+
+  /* Text */
+  --text-primary: #FAF9F5;
+  --text-secondary: #C2C0B6;
+  --text-tertiary: #9C9A92;
+  --text-inverse: #141413;
+  --text-info: #80AADD;
+  --text-danger: #EE8884;
+  --text-success: #7AB948;
+  --text-warning: #D1A041;
+  --text-disabled: rgba(250, 249, 245, 0.5);
+  --text-ghost: rgba(156, 154, 146, 0.5);
+
+  /* Border */
+  --border-primary: rgba(222, 220, 209, 0.4);
+  --border-secondary: rgba(222, 220, 209, 0.3);
+  --border-tertiary: rgba(222, 220, 209, 0.15);
+  --border-inverse: rgba(20, 20, 19, 0.15);
+  --border-ghost: rgba(222, 220, 209, 0);
+  --border-info: #4682D5;
+  --border-danger: #CD5C58;
+  --border-success: #599130;
+  --border-warning: #A87829;
+  --border-disabled: rgba(222, 220, 209, 0.1);
+
+  /* Ring (focus states) */
+  --ring-primary: rgba(250, 249, 245, 0.7);
+  --ring-secondary: rgba(194, 192, 182, 0.7);
+  --ring-inverse: rgba(20, 20, 19, 0.7);
+  --ring-info: rgba(128, 170, 221, 0.5);
+  --ring-danger: rgba(205, 92, 88, 0.5);
+  --ring-success: rgba(89, 145, 48, 0.5);
+  --ring-warning: rgba(168, 120, 41, 0.5);
+
+  /* Surfaces (dark overrides) */
+  --surface-app: #262624;
+  --surface-card: #262624;
+  --surface-sidebar: #262624;
+  --surface-input: #262624;
+  --surface-message-user: #30302E;
+  --surface-hover: rgba(250, 249, 245, 0.05);
+
+  /* Sidebar button active */
+  --sidebar-button-active-bg: rgba(250, 249, 245, 0.1);
+}
+
+/* -----------------------------------------------------------
+   BASE STYLES
+   ----------------------------------------------------------- */
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--surface-app);
+  color: var(--text-primary);
+}
+
+/* Scrollbar styling (subtle, matches Claude) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-tertiary);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-secondary);
+}
+
+/* Focus ring utility */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--surface-app), 0 0 0 4px var(--ring-primary);
+  border-radius: var(--radius-md);
+}
+
+/* -----------------------------------------------------------
+   ANIMATION UTILITIES
+   ----------------------------------------------------------- */
+
+/* Skeleton loading animation (from reference code) */
+@keyframes skeleton-pulse {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.4; }
+  100% { opacity: 0.2; }
+}
+
+.skeleton-animate {
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Cursor blink (chat input) */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Search result highlight */
+mark {
+  background-color: var(--bg-warning);
+  color: var(--text-primary);
+  border-radius: 2px;
+  padding: 0 2px;
+}
