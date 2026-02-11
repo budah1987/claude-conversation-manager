@@ -210,7 +210,7 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[18vh] px-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh] md:pt-[18vh] px-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -301,7 +301,7 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
             )}
 
             {/* Results area */}
-            <div ref={resultsRef} className="max-h-[320px] overflow-y-auto">
+            <div ref={resultsRef} className="max-h-[50vh] md:max-h-[320px] overflow-y-auto">
               {/* Empty state: no query yet */}
               {!hasActiveSearch && (
                 <div className="px-4 py-3">
@@ -386,7 +386,7 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
             </div>
 
             {/* Footer hints */}
-            <div className="px-4 py-2 border-t-[0.5px] border-[var(--border-tertiary)] flex items-center gap-4">
+            <div className="px-4 py-2 border-t-[0.5px] border-[var(--border-tertiary)] hidden md:flex items-center gap-4">
               {[
                 { key: '↑↓', label: 'Navigate' },
                 { key: '↵', label: 'Open' },

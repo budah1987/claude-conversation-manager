@@ -47,7 +47,7 @@ export function ActivityStrip({ onSearchClick }: ActivityStripProps) {
       >
         <Search size={14} strokeWidth={1.5} />
         <span>Search all conversations</span>
-        <kbd className="ml-1 px-1.5 py-0.5 border-[0.5px] border-[var(--border-tertiary)] rounded-[4px] bg-[var(--bg-tertiary)] text-[10px] font-semibold leading-none text-[var(--text-tertiary)]">
+        <kbd className="ml-1 px-1.5 py-0.5 border-[0.5px] border-[var(--border-tertiary)] rounded-[4px] bg-[var(--bg-tertiary)] text-[10px] font-semibold leading-none text-[var(--text-tertiary)] hidden lg:inline">
           ⌘K
         </kbd>
       </button>

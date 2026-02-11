@@ -70,7 +70,7 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto relative flex flex-col items-center">
-        <div className="w-full max-w-[720px] pt-20 pb-40 px-6">
+        <div className="w-full max-w-[720px] pt-14 md:pt-20 pb-40 px-6 pl-14 lg:pl-6">
           <RecentCards
             conversations={recentConversations}
             label={recentLabel}

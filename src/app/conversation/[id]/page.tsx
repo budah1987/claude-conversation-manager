@@ -281,7 +281,7 @@ function BreadcrumbMenu({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
       transition={{ duration: 0.12 }}
-      className="absolute top-full right-0 mt-1 w-52 rounded-lg border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] py-1 z-50"
+      className="absolute top-full left-0 md:left-auto md:right-0 mt-1 w-52 max-w-[calc(100vw-2rem)] rounded-lg border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] py-1 z-50"
       style={{ boxShadow: 'var(--shadow-md)' }}
     >
       {topItems.map((item) => (
@@ -575,7 +575,7 @@ export default function ConversationPage({
       <main className="flex-1 overflow-y-auto relative flex flex-col">
         {/* Breadcrumb header */}
         <div
-          className="sticky top-0 z-20 pl-12 pr-4 md:px-6 py-3 min-h-[60px] lg:min-h-0 flex items-center backdrop-blur-md border-b-[0.5px] border-[var(--border-tertiary)]"
+          className="sticky top-0 z-20 pl-12 pr-4 md:px-6 py-3 min-h-[48px] lg:min-h-0 flex items-center backdrop-blur-md border-b-[0.5px] border-[var(--border-tertiary)]"
           style={{
             backgroundColor:
               'color-mix(in srgb, var(--surface-app) 85%, transparent)',
@@ -651,7 +651,7 @@ export default function ConversationPage({
 
         {/* Chat thread */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6 pb-[140px]">
+          <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6" style={{ paddingBottom: 'calc(140px + env(safe-area-inset-bottom, 0px))' }}>
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-64">
                 <p

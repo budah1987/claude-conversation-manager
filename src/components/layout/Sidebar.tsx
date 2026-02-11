@@ -477,7 +477,8 @@ export function Sidebar({
               animate={{ x: 0 }}
               exit={{ x: -260 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed top-0 left-0 h-full w-[260px] bg-[var(--surface-sidebar)] border-r-[0.5px] border-[var(--border-secondary)] flex flex-col py-3 px-3 z-40 lg:hidden"
+              className="fixed top-0 left-0 h-full w-[260px] bg-[var(--surface-sidebar)] border-r-[0.5px] border-[var(--border-secondary)] flex flex-col px-3 z-40 lg:hidden"
+              style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 0px))', paddingBottom: 'max(12px, env(safe-area-inset-bottom, 0px))' }}
             >
               {/* Header */}
               <div className="flex items-center justify-between px-3 pb-3">

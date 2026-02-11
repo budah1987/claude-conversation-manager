@@ -5,9 +5,10 @@ import { Plus, ArrowUp, ChevronDown } from 'lucide-react';
 export function ChatInput() {
   return (
     <div
-      className="fixed bottom-0 left-0 lg:left-[220px] right-0 flex justify-center pt-4 pb-4 md:pb-6 pointer-events-none"
+      className="absolute bottom-0 left-0 right-0 flex justify-center pt-4 pointer-events-none"
       style={{
         background: 'linear-gradient(to bottom, transparent, var(--surface-app) 30%)',
+        paddingBottom: 'max(16px, calc(16px + env(safe-area-inset-bottom, 0px)))',
       }}
     >
       <div

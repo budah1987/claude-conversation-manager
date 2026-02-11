@@ -250,7 +250,7 @@ export default function DemoPage() {
 
         {/* Chat area */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6 pb-[160px]">
+          <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-6" style={{ paddingBottom: 'calc(160px + env(safe-area-inset-bottom, 0px))' }}>
             {/* User message */}
             <AnimatePresence>
               {phase !== 'idle' && (
@@ -547,10 +547,11 @@ export default function DemoPage() {
 
         {/* Input bar */}
         <div
-          className="absolute bottom-0 left-0 right-0 flex justify-center pt-4 pb-4 md:pb-6 pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 flex justify-center pt-4 pointer-events-none"
           style={{
             background:
               'linear-gradient(to bottom, transparent, var(--surface-app) 30%)',
+            paddingBottom: 'max(16px, calc(16px + env(safe-area-inset-bottom, 0px)))',
           }}
         >
           <div

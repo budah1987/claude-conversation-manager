@@ -52,7 +52,8 @@ export function RecentCards({
   const scroll = useCallback((direction: 1 | -1) => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = (el.clientWidth - 2 * GAP) / 3;
+    const firstCard = el.children[0] as HTMLElement;
+    const cardWidth = firstCard?.offsetWidth ?? (el.clientWidth - 2 * GAP) / 3;
     el.scrollBy({ left: direction * (cardWidth + GAP), behavior: 'smooth' });
   }, []);
 
@@ -104,9 +105,8 @@ export function RecentCards({
             <Link
               key={conversation.id}
               href={`/conversation/${conversation.id}`}
-              className="group block flex-none rounded-[var(--card-radius)] border-[0.5px] border-[var(--border-tertiary)] p-4 transition-all hover:border-[var(--border-secondary)] focus-ring"
+              className="group block flex-none recent-card rounded-[var(--card-radius)] border-[0.5px] border-[var(--border-tertiary)] p-4 transition-all hover:border-[var(--border-secondary)] focus-ring"
               style={{
-                width: `calc((100% - ${2 * GAP}px) / 3)`,
                 backgroundColor: 'var(--surface-card)',
               }}
             >
