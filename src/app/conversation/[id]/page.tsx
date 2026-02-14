@@ -9,7 +9,6 @@ import {
   ChevronDown,
   Pin,
   Pencil,
-  ArrowRightLeft,
   FolderMinus,
   Trash2,
 } from 'lucide-react';
@@ -21,8 +20,12 @@ import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { useCommandK } from '@/hooks/useCommandK';
 import { ALL_CONVERSATIONS } from '@/data/conversations';
 import { CONVERSATION_MESSAGES } from '@/data/messages';
-import { TOPICS } from '@/data/topics';
-import type { Message, TopicId } from '@/types';
+import { useBookmarks } from '@/context/BookmarkContext';
+import { useToast } from '@/context/ToastContext';
+import { ActionRow } from '@/components/conversation/ActionRow';
+import { CheckboxPanel } from '@/components/conversation/CheckboxPanel';
+import { BookmarkIndicator } from '@/components/conversation/BookmarkIndicator';
+import type { Message } from '@/types';
 
 // --- Code block parser ---
 function parseMessageContent(content: string) {
@@ -116,134 +119,15 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
-// --- Topic pill for Move-to selector ---
-function TopicPill({
-  topic,
-  isSelected,
-  onClick,
-}: {
-  topic: { id: string; name: string; color: string };
-  isSelected: boolean;
-  onClick: () => void;
-}) {
-  const [hovered, setHovered] = useState(false);
-
-  const borderColor = isSelected
-    ? topic.color
-    : hovered
-      ? 'var(--border-secondary)'
-      : 'var(--border-tertiary)';
-
-  const bgColor = isSelected
-    ? hovered
-      ? `color-mix(in srgb, ${topic.color} 30%, transparent)`
-      : `color-mix(in srgb, ${topic.color} 20%, transparent)`
-    : hovered
-      ? 'var(--surface-hover)'
-      : 'transparent';
-
-  const textColor = isSelected
-    ? topic.color
-    : hovered
-      ? 'var(--text-primary)'
-      : 'var(--text-secondary)';
-
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="flex items-center gap-1.5 rounded-lg text-[13px] font-medium cursor-pointer"
-      style={{
-        padding: '6px 12px',
-        border: `1.5px solid ${borderColor}`,
-        backgroundColor: bgColor,
-        color: textColor,
-        transition: 'all 0.15s ease',
-      }}
-    >
-      <span
-        className="w-2 h-2 rounded-full shrink-0"
-        style={{ backgroundColor: topic.color }}
-      />
-      {topic.name}
-    </button>
-  );
-}
-
-// --- Move-to toast ---
-function MoveToast({
-  topic,
-  onDone,
-  onUndo,
-}: {
-  topic: { name: string; color: string };
-  onDone: () => void;
-  onUndo: () => void;
-}) {
-  useEffect(() => {
-    const timer = setTimeout(onDone, 3000);
-    return () => clearTimeout(timer);
-  }, [onDone]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="fixed z-[100] flex items-center gap-2.5 rounded-xl font-medium border-[0.5px]"
-      style={{
-        top: 16,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        backgroundColor: 'var(--surface-card)',
-        borderColor: 'var(--border-tertiary)',
-        color: 'var(--text-secondary)',
-        fontSize: 14,
-        padding: '12px 20px',
-        boxShadow: 'var(--shadow-md)',
-      }}
-    >
-      Moved to
-      <span
-        className="inline-flex items-center rounded text-[10px] font-medium text-white"
-        style={{
-          backgroundColor: topic.color,
-          padding: '1px 7px',
-        }}
-      >
-        {topic.name}
-      </span>
-      <span style={{ color: 'var(--border-tertiary)' }}>·</span>
-      <button
-        onClick={() => { onUndo(); onDone(); }}
-        className="text-[13px] font-medium cursor-pointer"
-        style={{ color: 'var(--text-tertiary)', transition: 'color 0.15s ease' }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-tertiary)')}
-      >
-        Undo
-      </button>
-    </motion.div>
-  );
-}
-
 // --- Breadcrumb dropdown menu ---
 function BreadcrumbMenu({
   hasProject,
-  currentTopicId,
   onClose,
-  onMoveTo,
 }: {
   hasProject: boolean;
-  currentTopicId?: TopicId;
   onClose: () => void;
-  onMoveTo: (topicId: TopicId) => void;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
-  const [showTopics, setShowTopics] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState<TopicId | undefined>(currentTopicId);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -267,13 +151,6 @@ function BreadcrumbMenu({
     { icon: Trash2, label: 'Delete', danger: true },
   ];
 
-  const handleDone = () => {
-    if (selectedTopic && selectedTopic !== currentTopicId) {
-      onMoveTo(selectedTopic);
-    }
-    onClose();
-  };
-
   return (
     <motion.div
       ref={menuRef}
@@ -294,76 +171,6 @@ function BreadcrumbMenu({
           {item.label}
         </button>
       ))}
-
-      {/* Move to... */}
-      <button
-        onClick={() => setShowTopics(!showTopics)}
-        className={cn(
-          'w-full flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors hover:bg-[var(--surface-hover)] text-[var(--text-secondary)]',
-          showTopics && 'bg-[var(--surface-hover)]'
-        )}
-      >
-        <ArrowRightLeft size={15} strokeWidth={1.5} />
-        Move to...
-      </button>
-
-      {/* Topic pills (inline expansion) */}
-      <AnimatePresence initial={false}>
-        {showTopics && (
-          <motion.div
-            key="topic-pills"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="px-3 pt-2 pb-1">
-              <div className="flex flex-wrap gap-1.5">
-                {TOPICS.map((topic) => (
-                  <TopicPill
-                    key={topic.id}
-                    topic={topic}
-                    isSelected={selectedTopic === topic.id}
-                    onClick={() => setSelectedTopic(topic.id)}
-                  />
-                ))}
-              </div>
-              <div className="mt-2 flex justify-end">
-                {selectedTopic && selectedTopic !== currentTopicId ? (
-                  <button
-                    onClick={handleDone}
-                    className="text-[13px] font-medium rounded-lg"
-                    style={{
-                      padding: '6px 14px',
-                      backgroundColor: 'var(--bg-inverse)',
-                      color: 'var(--text-inverse)',
-                      transition: 'all 0.15s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
-                    onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-                  >
-                    Done
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleDone}
-                    className="text-[13px] font-medium"
-                    style={{
-                      color: 'var(--text-tertiary)',
-                      transition: 'all 0.15s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-tertiary)')}
-                  >
-                    Done
-                  </button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {bottomItems.map((item) => (
         <button
@@ -389,14 +196,27 @@ function ChatMessage({
   message,
   index,
   prevRole,
+  conversationId,
+  conversationTitle,
+  userQuery,
 }: {
   message: Message;
   index: number;
   prevRole?: 'user' | 'assistant';
+  conversationId: string;
+  conversationTitle: string;
+  userQuery?: string;
 }) {
+  const { isBookmarked, addBookmark, removeBookmark, getBookmarkForMessage } = useBookmarks();
+  const { showToast } = useToast();
+  const [showCheckboxPanel, setShowCheckboxPanel] = useState(false);
+
   const isUser = message.role === 'user';
   const sameRoleAsPrev = prevRole === message.role;
   const gap = sameRoleAsPrev ? 'mt-2' : 'mt-6';
+
+  const messageIsBookmarked = !isUser && isBookmarked(message.id);
+  const hasSolutions = !isUser && message.solutions && message.solutions.length > 0;
 
   if (isUser) {
     return (
@@ -433,6 +253,74 @@ function ChatMessage({
     );
   }
 
+  const handleBookmarkClick = () => {
+    if (messageIsBookmarked) {
+      // Remove bookmark
+      const bookmark = getBookmarkForMessage(message.id);
+      if (bookmark) {
+        const bookmarkId = bookmark.id;
+        removeBookmark(bookmarkId);
+        showToast({
+          type: 'remove',
+          message: 'Bookmark removed',
+        });
+      }
+    } else {
+      // Add bookmark
+      if (hasSolutions) {
+        // Show checkbox panel for multi-solution
+        setShowCheckboxPanel(true);
+      } else {
+        // Save single-solution
+        createBookmark();
+      }
+    }
+  };
+
+  const createBookmark = (selectedSolutionIndices?: number[]) => {
+    const bookmark = {
+      id: `bm-${Date.now()}`,
+      variant: (hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length > 1)
+        ? 'multi-bookmark'
+        : (hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length === 1)
+        ? 'single-option'
+        : 'single-text',
+      conversationId,
+      conversationTitle,
+      messageId: message.id,
+      userQuery: userQuery || 'User query',
+      responsePreview: message.content.slice(0, 150) + (message.content.length > 150 ? '...' : ''),
+      fullResponse: message.content,
+      tag: 'code' as const,
+      createdAt: new Date().toISOString(),
+      ...(hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length > 1 ? {
+        selectedOptions: selectedSolutionIndices.map((i) => message.solutions![i]),
+        unselectedOptions: message.solutions!.filter((_, i) => !selectedSolutionIndices.includes(i)),
+      } : {}),
+      ...(hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length === 1 ? {
+        optionLabel: `OPTION ${String.fromCharCode(65 + selectedSolutionIndices[0])}`,
+        totalOptions: message.solutions!.length,
+      } : {}),
+    };
+
+    addBookmark(bookmark as any);
+    showToast({
+      type: 'save',
+      message: 'Saved',
+      onAddNote: () => {
+        // Note will be added via toast input
+      },
+      onView: () => {
+        window.location.href = '/saved';
+      },
+    });
+    setShowCheckboxPanel(false);
+  };
+
+  const handleCheckboxSave = (selectedIndices: number[]) => {
+    createBookmark(selectedIndices);
+  };
+
   // Assistant message
   const parts = parseMessageContent(message.content);
 
@@ -443,7 +331,39 @@ function ChatMessage({
       transition={{ duration: 0.3, ease: 'easeOut', delay: index * 0.03 }}
       className={cn('flex', index > 0 && gap)}
     >
-      <div className="min-w-0">
+      <div
+        className="min-w-0 w-full relative group"
+        onMouseEnter={(e) => {
+          if (messageIsBookmarked) {
+            e.currentTarget.style.backgroundColor = '#FAFAF9';
+            e.currentTarget.style.borderColor = 'rgba(31, 30, 29, 0.2)';
+          } else {
+            e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--accent-primary) 6%, transparent)';
+            e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--accent-primary) 30%, transparent)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (messageIsBookmarked) {
+            e.currentTarget.style.backgroundColor = '#FFFFFF';
+            e.currentTarget.style.borderColor = 'rgba(31, 30, 29, 0.15)';
+          } else {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.borderColor = 'transparent';
+          }
+        }}
+        style={{
+          borderRadius: '12px',
+          margin: '-1px',
+          padding: messageIsBookmarked ? '16px 24px' : '16px',
+          transition: 'background-color 150ms ease, border-color 150ms ease',
+          border: '1px solid transparent',
+          backgroundColor: messageIsBookmarked ? '#FFFFFF' : 'transparent',
+          borderColor: messageIsBookmarked ? 'rgba(31, 30, 29, 0.15)' : 'transparent',
+        }}
+      >
+        {/* Bookmark indicator for bookmarked messages */}
+        {messageIsBookmarked && <BookmarkIndicator />}
+
         <div
           className="text-[17px] leading-[1.7] md:text-[16px] md:leading-[1.6]"
           style={{
@@ -459,6 +379,25 @@ function ChatMessage({
             )
           )}
         </div>
+
+        {/* Action row */}
+        <ActionRow
+          isBookmarked={messageIsBookmarked}
+          onBookmarkClick={handleBookmarkClick}
+          hasMultipleSolutions={hasSolutions}
+        />
+
+        {/* Checkbox panel for multi-solution */}
+        <AnimatePresence>
+          {showCheckboxPanel && hasSolutions && (
+            <CheckboxPanel
+              solutions={message.solutions!}
+              onSave={handleCheckboxSave}
+              onCancel={() => setShowCheckboxPanel(false)}
+            />
+          )}
+        </AnimatePresence>
+
         <p
           className="mt-1"
           style={{
@@ -485,32 +424,12 @@ export default function ConversationPage({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTopicId, setActiveTopicId] = useState<TopicId | undefined>(undefined);
-  const [previousTopicId, setPreviousTopicId] = useState<TopicId | undefined>(undefined);
-  const [toastTopic, setToastTopic] = useState<{ name: string; color: string } | null>(null);
 
   const conversation = useMemo(
     () => ALL_CONVERSATIONS.find((c) => c.id === id),
     [id]
   );
   const messages = CONVERSATION_MESSAGES[id] ?? [];
-
-  // Initialize activeTopicId from conversation data
-  useEffect(() => {
-    if (conversation) setActiveTopicId(conversation.topicId);
-  }, [conversation]);
-
-  const handleMoveTo = useCallback((topicId: TopicId) => {
-    setPreviousTopicId(activeTopicId);
-    setActiveTopicId(topicId);
-    const topic = TOPICS.find((t) => t.id === topicId);
-    if (topic) setToastTopic({ name: topic.name, color: topic.color });
-  }, [activeTopicId]);
-
-  const handleUndoMove = useCallback(() => {
-    if (previousTopicId) setActiveTopicId(previousTopicId);
-    setToastTopic(null);
-  }, [previousTopicId]);
 
   // Auto-collapse sidebar below 1024px
   useEffect(() => {
@@ -583,27 +502,20 @@ export default function ConversationPage({
         >
           <div className="max-w-[720px] mx-auto flex items-center w-full">
             <div className="flex items-center gap-1.5 min-w-0 relative">
-              {(() => {
-                const topic = activeTopicId
-                  ? TOPICS.find((t) => t.id === activeTopicId)
-                  : null;
-                return (
-                  <Link
-                    href={topic ? `/topic/${topic.id}` : '/'}
-                    className="inline-flex items-center gap-1 shrink-0 text-[14px] font-medium transition-colors duration-150"
-                    style={{ color: 'var(--text-tertiary)' }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = 'var(--text-primary)')
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = 'var(--text-tertiary)')
-                    }
-                  >
-                    <ArrowLeft size={16} strokeWidth={2} />
-                    {topic ? topic.name : 'Chats'}
-                  </Link>
-                );
-              })()}
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1 shrink-0 text-[14px] font-medium transition-colors duration-150"
+                style={{ color: 'var(--text-tertiary)' }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = 'var(--text-primary)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = 'var(--text-tertiary)')
+                }
+              >
+                <ArrowLeft size={16} strokeWidth={2} />
+                Chats
+              </Link>
               <span
                 className="text-[14px] shrink-0"
                 style={{ color: 'var(--text-ghost)' }}
@@ -640,9 +552,7 @@ export default function ConversationPage({
               {isMenuOpen && (
                 <BreadcrumbMenu
                   hasProject={!!conversation.project}
-                  currentTopicId={activeTopicId}
                   onClose={() => setIsMenuOpen(false)}
-                  onMoveTo={handleMoveTo}
                 />
               )}
             </div>
@@ -662,14 +572,30 @@ export default function ConversationPage({
                 </p>
               </div>
             ) : (
-              messages.map((msg, i) => (
-                <ChatMessage
-                  key={msg.id}
-                  message={msg}
-                  index={i}
-                  prevRole={i > 0 ? messages[i - 1].role : undefined}
-                />
-              ))
+              messages.map((msg, i) => {
+                // Find the most recent user message before this assistant message
+                let userQuery = '';
+                if (msg.role === 'assistant') {
+                  for (let j = i - 1; j >= 0; j--) {
+                    if (messages[j].role === 'user') {
+                      userQuery = messages[j].content;
+                      break;
+                    }
+                  }
+                }
+
+                return (
+                  <ChatMessage
+                    key={msg.id}
+                    message={msg}
+                    index={i}
+                    prevRole={i > 0 ? messages[i - 1].role : undefined}
+                    conversationId={conversation.id}
+                    conversationTitle={conversation.title}
+                    userQuery={userQuery}
+                  />
+                );
+              })
             )}
           </div>
         </div>
@@ -684,17 +610,6 @@ export default function ConversationPage({
         onClose={closeSearch}
         onNavigate={handleConversationClick}
       />
-
-      {/* Move-to toast */}
-      <AnimatePresence>
-        {toastTopic && (
-          <MoveToast
-            topic={toastTopic}
-            onDone={() => setToastTopic(null)}
-            onUndo={handleUndoMove}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

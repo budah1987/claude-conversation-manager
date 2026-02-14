@@ -1,22 +1,15 @@
 // src/app/page.tsx
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { ChatInput } from '@/components/layout/ChatInput';
-import { RecentCards } from '@/components/home/RecentCards';
-import { TopicGrid } from '@/components/home/TopicGrid';
-import { ActivityStrip } from '@/components/home/ActivityStrip';
+import { ChatInputCentered } from '@/components/home/ChatInputCentered';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { useCommandK } from '@/hooks/useCommandK';
-import { ALL_CONVERSATIONS } from '@/data/conversations';
-import { TOPICS } from '@/data/topics';
-import type { TopicId } from '@/types';
 
 export default function Home() {
   const router = useRouter();
-  const [selectedTopicId, setSelectedTopicId] = useState<TopicId | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -44,19 +37,6 @@ export default function Home() {
     router.push(`/conversation/${id}`);
   }, [router]);
 
-  const recentConversations = useMemo(() => {
-    if (!selectedTopicId) return ALL_CONVERSATIONS.slice(0, 9);
-    return ALL_CONVERSATIONS
-      .filter((c) => c.topicId === selectedTopicId)
-      .slice(0, 9);
-  }, [selectedTopicId]);
-
-  const recentLabel = useMemo(() => {
-    if (!selectedTopicId) return 'Pick up where you left off';
-    const topic = TOPICS.find((t) => t.id === selectedTopicId);
-    return `Recent in ${topic?.name ?? ''}`;
-  }, [selectedTopicId]);
-
   return (
     <div className="flex h-screen w-full bg-[var(--surface-app)] overflow-hidden font-[family-name:var(--font-sans)]">
       {/* Sidebar */}
@@ -69,26 +49,68 @@ export default function Home() {
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto relative flex flex-col items-center">
-        <div className="w-full max-w-[720px] pt-14 md:pt-20 pb-40 px-6 pl-14 lg:pl-6">
-          <RecentCards
-            conversations={recentConversations}
-            label={recentLabel}
-            isFiltered={!!selectedTopicId}
-            onClearFilter={() => setSelectedTopicId(null)}
-          />
+      <main className="flex-1 overflow-y-auto relative flex flex-col items-center justify-center px-6 pl-14 lg:pl-6">
+        <div className="w-full max-w-2xl flex flex-col items-center gap-8">
+          {/* Greeting */}
+          <h1
+            className="text-[28px] md:text-[32px] font-normal text-[var(--text-primary)] flex items-center gap-2"
+            style={{ fontFamily: 'var(--font-serif)' }}
+          >
+            <span className="text-[32px] md:text-[36px]" aria-hidden="true">✨</span>
+            Evening, Amir
+          </h1>
 
-          <TopicGrid
-            topics={TOPICS}
-            selectedTopicId={selectedTopicId}
-            onSelectTopic={(id) => router.push(`/topic/${id}`)}
-          />
+          {/* Centered chat input */}
+          <ChatInputCentered />
 
-          <ActivityStrip onSearchClick={openSearch} />
+          {/* Quick action pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+              aria-label="Write"
+            >
+              {/* TODO: Replace with proper SVG icon */}
+              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+              Write
+            </button>
+
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+              aria-label="Learn"
+            >
+              {/* TODO: Replace with proper SVG icon */}
+              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+              Learn
+            </button>
+
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+              aria-label="From Drive"
+            >
+              {/* TODO: Replace with proper SVG icon */}
+              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+              From Drive
+            </button>
+
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+              aria-label="From Calendar"
+            >
+              {/* TODO: Replace with proper SVG icon */}
+              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+              From Calendar
+            </button>
+
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+              aria-label="From Gmail"
+            >
+              {/* TODO: Replace with proper SVG icon */}
+              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+              From Gmail
+            </button>
+          </div>
         </div>
-
-        {/* Chat input */}
-        <ChatInput />
       </main>
 
       {/* Search overlay */}

@@ -6,8 +6,7 @@ import { Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ALL_CONVERSATIONS, RECENT_SEARCHES } from '@/data/conversations';
-import { TOPICS } from '@/data/topics';
-import type { TopicId, Conversation } from '@/types';
+import type { Conversation } from '@/types';
 
 // --- Highlight matched text ---
 function HighlightText({ text, query }: { text: string; query: string }) {
@@ -46,41 +45,6 @@ function MatchBadge({ field }: { field: 'title' | 'preview' | 'project' }) {
   );
 }
 
-// --- Topic filter chip ---
-function TopicChip({
-  name,
-  color,
-  count,
-  active,
-  onClick,
-}: {
-  name: string;
-  color: string;
-  count: number;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'flex items-center gap-1.5 px-2.5 py-1 rounded-full border-[0.5px] text-[12px] font-medium transition-all duration-150 shrink-0',
-        active
-          ? 'border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-primary)]'
-          : 'border-[var(--border-tertiary)] text-[var(--text-tertiary)] hover:border-[var(--border-secondary)] hover:text-[var(--text-secondary)]'
-      )}
-    >
-      <div
-        className="w-[6px] h-[6px] rounded-full shrink-0"
-        style={{ backgroundColor: color }}
-      />
-      {name}
-      <span className={cn('text-[10px]', active ? 'text-[var(--text-secondary)]' : 'text-[var(--text-ghost)]')}>
-        {count}
-      </span>
-    </button>
-  );
-}
 
 // --- Determine which field matched ---
 function getMatchField(
@@ -104,18 +68,12 @@ interface SearchOverlayProps {
 export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProps) {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [activeTopicFilter, setActiveTopicFilter] = useState<TopicId | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Filter results based on query + topic filter
+  // Filter results based on query
   const results = useMemo(() => {
     let filtered = ALL_CONVERSATIONS;
-
-    // Apply topic filter
-    if (activeTopicFilter) {
-      filtered = filtered.filter((c) => c.topicId === activeTopicFilter);
-    }
 
     // Apply text search
     if (query.trim()) {
@@ -129,25 +87,6 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
     }
 
     return filtered;
-  }, [query, activeTopicFilter]);
-
-  // Count results per topic (for filter chips, based on text query only)
-  const topicCounts = useMemo(() => {
-    let filtered = ALL_CONVERSATIONS;
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      filtered = filtered.filter(
-        (c) =>
-          c.title.toLowerCase().includes(q) ||
-          c.preview.toLowerCase().includes(q) ||
-          (c.project?.toLowerCase().includes(q) ?? false)
-      );
-    }
-    const counts: Record<string, number> = {};
-    for (const c of filtered) {
-      counts[c.topicId] = (counts[c.topicId] || 0) + 1;
-    }
-    return counts;
   }, [query]);
 
   // Reset state when opening/closing
@@ -155,7 +94,6 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
-      setActiveTopicFilter(null);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
@@ -203,8 +141,6 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // Should we show the topic filter chips?
-  const showTopicFilters = query.trim().length > 0 && results.length > 0;
   const hasActiveSearch = query.trim().length > 0;
 
   return (
@@ -243,7 +179,6 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
                 <button
                   onClick={() => {
                     setQuery('');
-                    setActiveTopicFilter(null);
                     inputRef.current?.focus();
                   }}
                   className="p-1 hover:bg-[var(--surface-hover)] rounded-[4px] transition-colors"
@@ -256,47 +191,10 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
               </kbd>
             </div>
 
-            {/* Topic filter chips (only shown when there are results) */}
-            {showTopicFilters && (
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b-[0.5px] border-[var(--border-tertiary)] overflow-x-auto">
-                <button
-                  onClick={() => setActiveTopicFilter(null)}
-                  className={cn(
-                    'text-[12px] font-medium px-2.5 py-1 rounded-full border-[0.5px] transition-all duration-150 shrink-0',
-                    !activeTopicFilter
-                      ? 'border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-primary)]'
-                      : 'border-[var(--border-tertiary)] text-[var(--text-tertiary)] hover:border-[var(--border-secondary)]'
-                  )}
-                >
-                  All
-                </button>
-                {TOPICS.filter((t) => (topicCounts[t.id] || 0) > 0).map((topic) => (
-                  <TopicChip
-                    key={topic.id}
-                    name={topic.name}
-                    color={topic.color}
-                    count={topicCounts[topic.id] || 0}
-                    active={activeTopicFilter === topic.id}
-                    onClick={() =>
-                      setActiveTopicFilter(
-                        activeTopicFilter === topic.id ? null : topic.id
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            )}
-
             {/* Result count */}
             {hasActiveSearch && results.length > 0 && (
               <div className="px-4 py-1.5 text-[11px] text-[var(--text-ghost)]">
                 {results.length} result{results.length !== 1 ? 's' : ''}
-                {activeTopicFilter && (
-                  <span>
-                    {' '}
-                    in {TOPICS.find((t) => t.id === activeTopicFilter)?.name}
-                  </span>
-                )}
               </div>
             )}
 
@@ -327,14 +225,6 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
                   <p className="text-[14px] text-[var(--text-tertiary)]">
                     No conversations found for "{query}"
                   </p>
-                  {activeTopicFilter && (
-                    <button
-                      onClick={() => setActiveTopicFilter(null)}
-                      className="mt-2 text-[12px] text-[var(--text-info)] hover:underline"
-                    >
-                      Search all topics instead
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -357,10 +247,6 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
                           : 'hover:bg-[rgba(31,30,29,0.02)]'
                       )}
                     >
-                      <div
-                        className="w-2 h-2 rounded-full mt-1.5 shrink-0"
-                        style={{ backgroundColor: result.color }}
-                      />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <h4 className="text-[14px] font-semibold text-[var(--text-primary)] truncate flex-1">

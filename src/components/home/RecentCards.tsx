@@ -3,7 +3,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { TopicDot } from '@/components/ui/TopicDot';
 import { ProjectPill } from '@/components/ui/ProjectPill';
 import { SectionLabel } from '@/components/ui/SectionLabel';
 import type { Conversation } from '@/types';
@@ -110,8 +109,7 @@ export function RecentCards({
                 backgroundColor: 'var(--surface-card)',
               }}
             >
-              <div className="flex items-center justify-between mb-2">
-                <TopicDot color={conversation.color} />
+              <div className="flex items-center justify-end mb-2">
                 <span className="text-[11px] text-[var(--text-ghost)]">
                   {conversation.timestamp}
                 </span>

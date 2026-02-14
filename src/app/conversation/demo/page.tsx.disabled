@@ -10,8 +10,6 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { useCommandK } from '@/hooks/useCommandK';
 import ClaudeThinkingIcon from '@/components/ui/ClaudeThinkingIcon';
-import { TOPICS } from '@/data/topics';
-import type { TopicId } from '@/types';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -120,8 +118,7 @@ function OrganizeHeader() {
 // Page
 // ---------------------------------------------------------------------------
 
-type Phase = 'idle' | 'user' | 'thinking' | 'response' | 'organize';
-type OrgState = 'prompt' | 'accept' | 'edit' | 'dismissed';
+type Phase = 'idle' | 'user' | 'thinking' | 'response';
 
 export default function DemoPage() {
   const router = useRouter();
@@ -133,8 +130,6 @@ export default function DemoPage() {
   // Demo state machine
   const [inputText, setInputText] = useState(USER_MESSAGE);
   const [phase, setPhase] = useState<Phase>('idle');
-  const [organizeState, setOrganizeState] = useState<OrgState>('prompt');
-  const [selectedTopic, setSelectedTopic] = useState<TopicId>('code');
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -173,7 +168,7 @@ export default function DemoPage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [phase, organizeState, scrollToBottom]);
+  }, [phase, scrollToBottom]);
 
   // Send handler — kicks off the timed sequence
   const handleSend = useCallback(() => {
@@ -183,11 +178,9 @@ export default function DemoPage() {
 
     setTimeout(() => setPhase('thinking'), 800);
     setTimeout(() => setPhase('response'), 2500);
-    setTimeout(() => setPhase('organize'), 3300);
   }, [phase]);
 
   const assistantParts = parseContent(ASSISTANT_RESPONSE);
-  const selectedTopicData = TOPICS.find((t) => t.id === selectedTopic);
 
   return (
     <div className="flex h-screen w-full bg-[var(--surface-app)] overflow-hidden font-[family-name:var(--font-sans)]">
@@ -295,7 +288,7 @@ export default function DemoPage() {
 
             {/* Assistant response */}
             <AnimatePresence>
-              {(phase === 'response' || phase === 'organize') && (
+              {phase === 'response' && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -340,13 +333,19 @@ export default function DemoPage() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+        </div>
 
-            {/* Organize prompt */}
-            {phase === 'organize' && organizeState !== 'dismissed' && (
-              <AnimatePresence mode="wait">
-                {/* ---- Card (shared shell for prompt & edit) ---- */}
-                {(organizeState === 'prompt' || organizeState === 'edit') && (
-                  <motion.div
+        {/* Input bar */}
+        <div
+          className="absolute bottom-0 left-0 right-0 flex justify-center pt-4 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, transparent, var(--surface-app) 30%)',
+            paddingBottom: 'max(16px, calc(16px + env(safe-area-inset-bottom, 0px)))',
+          }}
+        >
+          <div
                     key="card"
                     layout
                     initial={{ opacity: 0, y: 12 }}

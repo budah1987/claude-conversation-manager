@@ -9,11 +9,11 @@ import {
   MessageSquare,
   FolderClosed,
   Settings,
+  Bookmark,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ALL_CONVERSATIONS } from '@/data/conversations';
-import { TOPICS } from '@/data/topics';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 // --- Sidebar toggle icon (from Figma export, stroke inherits theme via currentColor) ---
@@ -126,47 +126,27 @@ function NavItemCollapsed({
   );
 }
 
-// --- Pinned conversation item ---
-// Badge-friendly overrides for topic colors that are too dark on solid backgrounds
-const BADGE_COLOR_OVERRIDES: Record<string, string> = {
-  '#805C1F': '#B8860B', // Planning: dark brown → brighter amber
-};
-
-function PinnedItem({
+// --- Conversation list item (used for Starred and Recents) ---
+function ConversationItem({
   title,
-  color,
-  topicName,
   active = false,
   onClick,
 }: {
   title: string;
-  color: string;
-  topicName: string;
   active?: boolean;
   onClick?: () => void;
 }) {
-  const badgeColor = BADGE_COLOR_OVERRIDES[color] ?? color;
   return (
     <button
       onClick={onClick}
       className={cn(
-        'w-full flex flex-col gap-0.5 px-3 py-1 rounded-lg text-left transition-colors group',
+        'w-full px-3 py-2 rounded-lg text-left transition-colors group',
         active
           ? 'bg-[var(--sidebar-button-active-bg)]'
           : 'hover:bg-[var(--surface-hover)]'
       )}
     >
-      <span
-        className="self-start rounded-[4px] text-[10px] font-medium leading-tight"
-        style={{
-          color: '#FFFFFF',
-          backgroundColor: badgeColor,
-          padding: '1px 6px',
-        }}
-      >
-        {topicName}
-      </span>
-      <span className="text-[13px] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
+      <span className="text-[13px] text-[var(--text-primary)] transition-colors truncate block">
         {title}
       </span>
     </button>
@@ -198,10 +178,22 @@ function ExpandedContent({
 }: SidebarContentProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const isNewChatActive = pathname === '/conversation/demo';
-  const isChatsActive = !isNewChatActive && (pathname === '/' || pathname.startsWith('/conversation/') || pathname.startsWith('/topic/'));
-  const pinnedConversations = useMemo(
-    () => ALL_CONVERSATIONS.filter((c) => c.pinned),
+  const isNewChatActive = false; // Demo route temporarily disabled
+  const isChatsActive = pathname === '/chats';
+  const isSavedActive = pathname === '/saved';
+
+  // Starred conversations (pinned -> starred migration)
+  const starredConversations = useMemo(
+    () => ALL_CONVERSATIONS.filter((c) => c.starred || c.pinned),
+    []
+  );
+
+  // Recent conversations (8 most recent non-starred)
+  const recentConversations = useMemo(
+    () => ALL_CONVERSATIONS
+      .filter((c) => !c.starred && !c.pinned)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 8),
     []
   );
 
@@ -218,7 +210,7 @@ function ExpandedContent({
           icon={<Plus size={20} strokeWidth={1.5} />}
           label="New chat"
           active={isNewChatActive}
-          onClick={() => handleClick(() => router.push('/conversation/demo'))}
+          onClick={() => handleClick(() => router.push('/'))}
         />
         <NavItem
           icon={<Search size={20} strokeWidth={1.5} />}
@@ -229,12 +221,18 @@ function ExpandedContent({
           icon={<MessageSquare size={20} strokeWidth={1.5} />}
           label="Chats"
           active={isChatsActive}
-          onClick={() => handleClick(() => router.push('/'))}
+          onClick={() => handleClick(() => router.push('/chats'))}
         />
         <NavItem
           icon={<FolderClosed size={20} strokeWidth={1.5} />}
           label="Projects"
           onClick={() => handleClick()}
+        />
+        <NavItem
+          icon={<Bookmark size={20} strokeWidth={1.5} />}
+          label="Saved"
+          active={isSavedActive}
+          onClick={() => handleClick(() => router.push('/saved'))}
         />
         <NavItem
           icon={<ArtifactsIcon size={20} />}
@@ -248,27 +246,42 @@ function ExpandedContent({
         />
       </nav>
 
-      {/* Pinned conversations */}
-      {pinnedConversations.length > 0 && (
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <SectionLabel>Pinned</SectionLabel>
+      {/* Starred conversations */}
+      {starredConversations.length > 0 && (
+        <div className="flex-shrink-0 overflow-y-auto min-h-0">
+          <SectionLabel>Starred</SectionLabel>
           <div className="flex flex-col gap-0.5">
-            {pinnedConversations.map((conv) => {
-              const topic = TOPICS.find((t) => t.id === conv.topicId);
-              return (
-                <PinnedItem
-                  key={conv.id}
-                  title={conv.title}
-                  color={conv.color}
-                  topicName={topic?.name ?? ''}
-                  active={conv.id === activeConversationId}
-                  onClick={() => {
-                    onConversationClick?.(conv.id);
-                    onNavigate?.();
-                  }}
-                />
-              );
-            })}
+            {starredConversations.map((conv) => (
+              <ConversationItem
+                key={conv.id}
+                title={conv.title}
+                active={conv.id === activeConversationId}
+                onClick={() => {
+                  onConversationClick?.(conv.id);
+                  onNavigate?.();
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent conversations */}
+      {recentConversations.length > 0 && (
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <SectionLabel>Recents</SectionLabel>
+          <div className="flex flex-col gap-0.5">
+            {recentConversations.map((conv) => (
+              <ConversationItem
+                key={conv.id}
+                title={conv.title}
+                active={conv.id === activeConversationId}
+                onClick={() => {
+                  onConversationClick?.(conv.id);
+                  onNavigate?.();
+                }}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -309,8 +322,9 @@ function CollapsedContent({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const isNewChatActive = pathname === '/conversation/demo';
-  const isChatsActive = !isNewChatActive && (pathname === '/' || pathname.startsWith('/conversation/') || pathname.startsWith('/topic/'));
+  const isNewChatActive = false; // Demo route temporarily disabled
+  const isChatsActive = pathname === '/chats';
+  const isSavedActive = pathname === '/saved';
   return (
     <>
       {/* Toggle at top */}
@@ -328,7 +342,7 @@ function CollapsedContent({
           icon={<Plus size={20} strokeWidth={1.5} />}
           label="New chat"
           active={isNewChatActive}
-          onClick={() => router.push('/conversation/demo')}
+          onClick={() => router.push('/')}
         />
         <NavItemCollapsed
           icon={<Search size={20} strokeWidth={1.5} />}
@@ -339,11 +353,17 @@ function CollapsedContent({
           icon={<MessageSquare size={20} strokeWidth={1.5} />}
           label="Chats"
           active={isChatsActive}
-          onClick={() => router.push('/')}
+          onClick={() => router.push('/chats')}
         />
         <NavItemCollapsed
           icon={<FolderClosed size={20} strokeWidth={1.5} />}
           label="Projects"
+        />
+        <NavItemCollapsed
+          icon={<Bookmark size={20} strokeWidth={1.5} />}
+          label="Saved"
+          active={isSavedActive}
+          onClick={() => router.push('/saved')}
         />
         <NavItemCollapsed
           icon={<ArtifactsIcon size={20} />}

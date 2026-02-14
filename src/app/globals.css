@@ -148,6 +148,19 @@
   /* Sidebar button active */
   --sidebar-button-active-bg: rgba(31, 30, 29, 0.08);
 
+  /* Bookmark card colors (light mode) */
+  --card-bg: #FFFFFF;
+  --query-bg: #F5F4ED;
+  --query-border: rgba(31, 30, 29, 0.15);
+  --query-text: #141413;
+  --code-bg: #1E1E1D;
+  --note-bg: #F5F4ED;
+  --note-border: rgba(31, 30, 29, 0.15);
+  --note-text: #141413;
+  --draft-bg: #FAFAF7;
+  --link-text: #4682D5;
+  --ic-bg: rgba(31, 30, 29, 0.08);
+
   /* Shadows */
   --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0px 2px 8px rgba(0, 0, 0, 0.08);
@@ -167,6 +180,19 @@
   --interactive-radius: 8px;
   --card-radius: 10px;
   --container-radius: 16px;
+
+  /* Toast (light mode) */
+  --toast-bg: #141413;
+  --toast-text: #FAF9F5;
+  --toast-secondary: #C2C0B6;
+  --toast-ghost: rgba(250, 249, 245, 0.4);
+  --toast-border: rgba(222, 220, 209, 0.1);
+  --toast-input-bg: #262624;
+  --toast-input-border: rgba(222, 220, 209, 0.2);
+  --toast-accent: #C6613F;
+  --toast-check-bg: rgba(67, 116, 38, 0.15);
+  --toast-check-color: #7AB948;
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
 
   /* Safe area insets for notched devices */
   --safe-area-top: env(safe-area-inset-top, 0px);
@@ -235,6 +261,32 @@
 
   /* Sidebar button active */
   --sidebar-button-active-bg: rgba(250, 249, 245, 0.1);
+
+  /* Bookmark card colors (dark mode) */
+  --card-bg: #262624;
+  --query-bg: #30302E;
+  --query-border: rgba(222, 220, 209, 0.15);
+  --query-text: #FAF9F5;
+  --code-bg: #1A1A19;
+  --note-bg: #30302E;
+  --note-border: rgba(222, 220, 209, 0.15);
+  --note-text: #FAF9F5;
+  --draft-bg: #30302E;
+  --link-text: #80AADD;
+  --ic-bg: rgba(250, 249, 245, 0.1);
+
+  /* Toast (dark mode) */
+  --toast-bg: #FAF9F5;
+  --toast-text: #141413;
+  --toast-secondary: #3D3D3A;
+  --toast-ghost: rgba(20, 20, 19, 0.4);
+  --toast-border: rgba(31, 30, 29, 0.08);
+  --toast-input-bg: #F0EEE6;
+  --toast-input-border: rgba(31, 30, 29, 0.15);
+  --toast-accent: #C6613F;
+  --toast-check-bg: rgba(67, 116, 38, 0.12);
+  --toast-check-color: #437426;
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* -----------------------------------------------------------

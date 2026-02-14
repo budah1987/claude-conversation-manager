@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans, Source_Serif_4, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import { BookmarkProvider } from '@/context/BookmarkContext';
+import { ToastProvider } from '@/context/ToastContext';
+import { Toast } from '@/components/ui/Toast';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -48,7 +51,14 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <BookmarkProvider>
+          <ToastProvider>
+            {children}
+            <Toast />
+          </ToastProvider>
+        </BookmarkProvider>
+      </body>
     </html>
   );
 }
