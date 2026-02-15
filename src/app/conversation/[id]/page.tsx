@@ -87,7 +87,7 @@ function TextBlock({ text }: { text: string }) {
 function CodeBlock({ code }: { code: string }) {
   return (
     <pre
-      className="my-3 rounded-lg p-4 overflow-x-auto text-[13px] leading-relaxed"
+      className="my-3 rounded-lg p-4 overflow-x-auto text-[13px] leading-relaxed whitespace-pre-wrap break-words"
       style={{
         backgroundColor: 'var(--code-bg)',
         fontFamily: 'var(--font-mono)',
@@ -234,7 +234,7 @@ function ChatMessage({
           <p
             className="mt-1 text-right pr-2"
             style={{
-              fontSize: '11px',
+              fontSize: '12px',
               color: 'var(--text-ghost)',
             }}
           >
@@ -513,7 +513,7 @@ export default function ConversationPage({
       <main className="flex-1 overflow-y-auto relative flex flex-col">
         {/* Breadcrumb header */}
         <div
-          className="sticky top-0 z-20 pl-12 pr-4 md:px-6 py-3 min-h-[48px] lg:min-h-0 flex items-center backdrop-blur-md border-b-[0.5px] border-[var(--border-tertiary)]"
+          className="sticky top-0 z-20 pl-11 pr-3 md:px-6 py-3 min-h-[48px] lg:min-h-0 flex items-center backdrop-blur-md border-b-[0.5px] border-[var(--border-tertiary)]"
           style={{
             backgroundColor:
               'color-mix(in srgb, var(--surface-app) 85%, transparent)',

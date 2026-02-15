@@ -63,8 +63,8 @@ export function Toast() {
         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         className="fixed bottom-7 left-1/2 -translate-x-1/2 z-[100] max-w-[calc(100vw-40px)]"
         style={{
-          width: showNoteInput ? '400px' : 'auto',
-          minWidth: showNoteInput ? '340px' : '0',
+          width: showNoteInput ? 'min(400px, calc(100vw - 32px))' : 'auto',
+          minWidth: showNoteInput ? 'min(340px, calc(100vw - 32px))' : '0',
         }}
       >
         <div
@@ -73,6 +73,8 @@ export function Toast() {
             backgroundColor: 'var(--toast-bg)',
             boxShadow: 'var(--shadow-lg)',
           }}
+          onTouchStart={pauseTimer}
+          onTouchEnd={resumeTimer}
         >
           {/* ─── Save Toast: Compact State ─── */}
           {toast.type === 'save' && !showNoteInput && (
@@ -173,7 +175,7 @@ export function Toast() {
                 <div className="flex-1" />
                 <button
                   onClick={handleCloseNoteInput}
-                  className="w-6 h-6 flex items-center justify-center rounded transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded transition-colors"
                   style={{ color: 'var(--toast-ghost)' }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.color = 'var(--toast-secondary)')
@@ -213,7 +215,7 @@ export function Toast() {
                 <button
                   onClick={handleNoteSave}
                   disabled={!noteInput.trim()}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md flex items-center justify-center transition-all disabled:cursor-not-allowed"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-md flex items-center justify-center transition-all disabled:cursor-not-allowed"
                   style={{
                     backgroundColor: noteInput.trim()
                       ? 'var(--toast-accent)'

@@ -56,8 +56,17 @@ export default function SavedPage() {
         onConversationClick={handleConversationClick}
       />
 
-      <main className="flex-1 overflow-y-auto relative pl-14 lg:pl-0">
-        <div className="max-w-4xl mx-auto px-6 py-8">
+      <main className="flex-1 overflow-y-auto relative">
+        {/* Sticky top bar for mobile — provides background behind the fixed sidebar toggle */}
+        <div
+          className="sticky top-0 z-10 min-h-[48px] lg:hidden backdrop-blur-md"
+          style={{
+            backgroundColor:
+              'color-mix(in srgb, var(--surface-app) 85%, transparent)',
+          }}
+        />
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {/* Header */}
           <div className="mb-8">
             <h1

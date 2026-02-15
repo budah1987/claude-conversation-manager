@@ -91,7 +91,7 @@ export default function Home() {
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto relative flex flex-col items-center justify-center px-6 pl-14 lg:pl-6">
+      <main className="flex-1 overflow-y-auto relative flex flex-col items-center justify-center px-4 sm:px-6">
         <div className="w-full max-w-2xl flex flex-col items-center gap-8">
           {/* Greeting */}
           <h1

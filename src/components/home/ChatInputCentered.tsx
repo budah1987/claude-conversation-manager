@@ -47,13 +47,13 @@ export function ChatInputCentered({ value, isTyping, onSend }: ChatInputCentered
           <div className="flex items-center gap-2">
             <button
               aria-label="Attach file"
-              className="flex items-center justify-center w-8 h-8 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
+              className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
             >
               <Plus size={18} strokeWidth={1.5} />
             </button>
 
             <button
-              className="flex items-center gap-1 px-2 h-7 rounded-[var(--radius-sm)] text-[12px] font-medium text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
+              className="flex items-center gap-1 px-2 h-9 sm:h-7 rounded-[var(--radius-sm)] text-[12px] font-medium text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
               aria-label="Select model"
             >
               <span>Sonnet 4.5</span>
@@ -64,7 +64,7 @@ export function ChatInputCentered({ value, isTyping, onSend }: ChatInputCentered
           <button
             aria-label="Send message"
             onClick={onSend}
-            className="flex items-center justify-center w-8 h-8 text-white transition-opacity hover:opacity-90 focus-ring"
+            className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 text-white transition-opacity hover:opacity-90 focus-ring"
             style={{
               backgroundColor: 'var(--accent-primary)',
               borderRadius: 'var(--interactive-radius)',

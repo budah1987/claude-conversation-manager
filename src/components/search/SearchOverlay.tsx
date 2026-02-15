@@ -146,7 +146,7 @@ export function SearchOverlay({ isOpen, onClose, onNavigate }: SearchOverlayProp
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh] md:pt-[18vh] px-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[4vh] md:pt-[18vh] px-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}

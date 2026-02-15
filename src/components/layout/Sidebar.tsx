@@ -158,7 +158,7 @@ function ConversationItem({
 // --- Section label ---
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-3 pt-4 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--text-tertiary)]">
+    <p className="px-3 pt-4 pb-1.5 text-[12px] font-semibold uppercase tracking-[0.05em] text-[var(--text-tertiary)]">
       {children}
     </p>
   );
@@ -206,90 +206,93 @@ function ExpandedContent({
 
   return (
     <>
-      {/* Nav */}
-      <nav className="flex flex-col gap-0.5 shrink-0">
-        <NavItem
-          icon={<Plus size={20} strokeWidth={1.5} />}
-          label="New chat"
-          active={isNewChatActive}
-          onClick={() => handleClick(() => router.push('/'))}
-        />
-        <NavItem
-          icon={<Search size={20} strokeWidth={1.5} />}
-          label="Search"
-          onClick={() => handleClick(onSearchClick)}
-        />
-        <NavItem
-          icon={<MessageSquare size={20} strokeWidth={1.5} />}
-          label="Chats"
-          active={isChatsActive}
-          onClick={() => handleClick(() => router.push('/chats'))}
-        />
-        <NavItem
-          icon={<FolderClosed size={20} strokeWidth={1.5} />}
-          label="Projects"
-          onClick={() => handleClick()}
-        />
-        <NavItem
-          icon={<Bookmark size={20} strokeWidth={1.5} />}
-          label="Saved"
-          active={isSavedActive}
-          onClick={() => handleClick(() => router.push('/saved'))}
-        />
-        <NavItem
-          icon={<ArtifactsIcon size={20} />}
-          label="Artifacts"
-          onClick={() => handleClick()}
-        />
-        <NavItem
-          icon={<CodeIcon size={20} />}
-          label="Code"
-          onClick={() => handleClick()}
-        />
-      </nav>
+      {/* Scrollable area: nav + starred + recents */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        {/* Nav */}
+        <nav className="flex flex-col gap-0.5">
+          <NavItem
+            icon={<Plus size={20} strokeWidth={1.5} />}
+            label="New chat"
+            active={isNewChatActive}
+            onClick={() => handleClick(() => router.push('/'))}
+          />
+          <NavItem
+            icon={<Search size={20} strokeWidth={1.5} />}
+            label="Search"
+            onClick={() => handleClick(onSearchClick)}
+          />
+          <NavItem
+            icon={<MessageSquare size={20} strokeWidth={1.5} />}
+            label="Chats"
+            active={isChatsActive}
+            onClick={() => handleClick(() => router.push('/chats'))}
+          />
+          <NavItem
+            icon={<FolderClosed size={20} strokeWidth={1.5} />}
+            label="Projects"
+            onClick={() => handleClick()}
+          />
+          <NavItem
+            icon={<Bookmark size={20} strokeWidth={1.5} />}
+            label="Saved"
+            active={isSavedActive}
+            onClick={() => handleClick(() => router.push('/saved'))}
+          />
+          <NavItem
+            icon={<ArtifactsIcon size={20} />}
+            label="Artifacts"
+            onClick={() => handleClick()}
+          />
+          <NavItem
+            icon={<CodeIcon size={20} />}
+            label="Code"
+            onClick={() => handleClick()}
+          />
+        </nav>
 
-      {/* Starred conversations */}
-      {starredConversations.length > 0 && (
-        <div className="flex-shrink-0 overflow-y-auto min-h-0">
-          <SectionLabel>Starred</SectionLabel>
-          <div className="flex flex-col gap-0.5">
-            {starredConversations.map((conv) => (
-              <ConversationItem
-                key={conv.id}
-                title={conv.title}
-                active={conv.id === activeConversationId}
-                onClick={() => {
-                  onConversationClick?.(conv.id);
-                  onNavigate?.();
-                }}
-              />
-            ))}
+        {/* Starred conversations */}
+        {starredConversations.length > 0 && (
+          <div className="flex-shrink-0">
+            <SectionLabel>Starred</SectionLabel>
+            <div className="flex flex-col gap-0.5">
+              {starredConversations.map((conv) => (
+                <ConversationItem
+                  key={conv.id}
+                  title={conv.title}
+                  active={conv.id === activeConversationId}
+                  onClick={() => {
+                    onConversationClick?.(conv.id);
+                    onNavigate?.();
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Recent conversations */}
-      {recentConversations.length > 0 && (
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <SectionLabel>Recents</SectionLabel>
-          <div className="flex flex-col gap-0.5">
-            {recentConversations.map((conv) => (
-              <ConversationItem
-                key={conv.id}
-                title={conv.title}
-                active={conv.id === activeConversationId}
-                onClick={() => {
-                  onConversationClick?.(conv.id);
-                  onNavigate?.();
-                }}
-              />
-            ))}
+        {/* Recent conversations */}
+        {recentConversations.length > 0 && (
+          <div className="flex-shrink-0">
+            <SectionLabel>Recents</SectionLabel>
+            <div className="flex flex-col gap-0.5">
+              {recentConversations.map((conv) => (
+                <ConversationItem
+                  key={conv.id}
+                  title={conv.title}
+                  active={conv.id === activeConversationId}
+                  onClick={() => {
+                    onConversationClick?.(conv.id);
+                    onNavigate?.();
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Bottom */}
-      <div className="flex flex-col gap-0.5 shrink-0 mt-auto pt-2">
+      {/* Bottom — pinned */}
+      <div className="flex flex-col gap-0.5 shrink-0 pt-2">
         <ThemeToggle />
         <NavItem
           icon={<Settings size={20} strokeWidth={1.5} />}
@@ -549,7 +552,7 @@ export function Sidebar({
         <button
           aria-label="Open sidebar"
           onClick={onToggle}
-          className="fixed top-3 left-3 z-30 w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors lg:hidden"
+          className="fixed top-3 left-3 z-30 w-11 h-11 flex items-center justify-center rounded-lg text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors lg:hidden"
         >
           <SidebarToggleIcon size={18} />
         </button>

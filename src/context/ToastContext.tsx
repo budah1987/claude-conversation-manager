@@ -63,7 +63,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToast(config);
 
     // Set initial remaining time based on toast type
-    const duration = config.type === 'save' ? 3000 : 4000;
+    const duration = config.type === 'save' ? 4000 : 6000;
     remainingTimeRef.current = duration;
     timerStartedAtRef.current = Date.now();
 

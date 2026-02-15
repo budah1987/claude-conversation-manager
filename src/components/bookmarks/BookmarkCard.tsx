@@ -35,11 +35,12 @@ interface CodeBlockDisplayProps {
 function CodeBlockDisplay({ code, language }: CodeBlockDisplayProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(true);
-  const [lastScrollTop, setLastScrollTop] = useState(0);
   const codeRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const lastScrollTopRef = useRef(0);
+  const rafRef = useRef<number>(0);
 
   const lineCount = countLines(code);
   const shouldShowExpand = lineCount > 20;
@@ -57,23 +58,29 @@ function CodeBlockDisplay({ code, language }: CodeBlockDisplayProps) {
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
 
-    // Calculate scroll progress (0-1)
-    const progress = scrollTop / (scrollHeight - clientHeight);
-    setScrollProgress(progress);
+    // Update indicator position directly via DOM (bypasses React re-render)
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (indicatorRef.current) {
+        const progress = scrollTop / (scrollHeight - clientHeight);
+        indicatorRef.current.style.top = `${progress * 100}%`;
+        indicatorRef.current.style.opacity = progress > 0.01 ? '1' : '0.3';
+      }
+    });
 
     // Check if scrolled to bottom (within 10px threshold)
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
     setIsScrolledToBottom(isAtBottom);
 
     // Detect scroll direction for button fade behavior
-    if (scrollTop > lastScrollTop && scrollTop > 10) {
+    if (scrollTop > lastScrollTopRef.current && scrollTop > 10) {
       // Scrolling down - hide button
       setShowExpandButton(false);
-    } else if (scrollTop < lastScrollTop) {
+    } else if (scrollTop < lastScrollTopRef.current) {
       // Scrolling up - show button
       setShowExpandButton(true);
     }
-    setLastScrollTop(scrollTop);
+    lastScrollTopRef.current = scrollTop;
   };
 
   return (
@@ -101,7 +108,7 @@ function CodeBlockDisplay({ code, language }: CodeBlockDisplayProps) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span
               style={{
-                fontSize: '11px',
+                fontSize: '12px',
                 fontFamily: 'var(--font-sans)',
                 color: 'var(--code-text-muted)',
                 textTransform: 'uppercase',
@@ -112,10 +119,10 @@ function CodeBlockDisplay({ code, language }: CodeBlockDisplayProps) {
             </span>
             {shouldShowExpand && (
               <>
-                <span style={{ color: '#637777', fontSize: '11px' }}>•</span>
+                <span style={{ color: '#637777', fontSize: '12px' }}>•</span>
                 <span
                   style={{
-                    fontSize: '11px',
+                    fontSize: '12px',
                     fontFamily: 'var(--font-sans)',
                     color: 'var(--code-text-muted)',
                     letterSpacing: '0.5px',
@@ -182,7 +189,8 @@ function CodeBlockDisplay({ code, language }: CodeBlockDisplayProps) {
             fontFamily: 'var(--font-mono)',
             fontSize: '12px',
             lineHeight: '19.2px',
-            whiteSpace: 'pre',
+            whiteSpace: 'pre-wrap',
+            overflowWrap: 'break-word',
             overflowX: 'auto',
             maxHeight: isExpanded ? 'none' : '400px',
             overflowY: isExpanded ? 'visible' : 'auto',
@@ -224,15 +232,16 @@ function CodeBlockDisplay({ code, language }: CodeBlockDisplayProps) {
             }}
           >
             <div
+              ref={indicatorRef}
               style={{
                 position: 'absolute',
-                top: `${scrollProgress * 100}%`,
+                top: '0%',
                 width: '100%',
                 height: '30%',
                 backgroundColor: 'rgba(198, 97, 63, 0.6)',
                 borderRadius: '2px',
-                transition: 'top 0.1s ease-out, opacity 0.2s',
-                opacity: scrollProgress > 0.01 ? 1 : 0.3,
+                opacity: 0.3,
+                willChange: 'top',
               }}
             />
           </div>
@@ -684,7 +693,7 @@ export function BookmarkCard({ bookmark }: BookmarkCardProps) {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        padding: '16px 24px',
+        padding: '16px',
         gap: '8px',
         backgroundColor: 'var(--card-bg)',
         border: '1px solid var(--query-border)',
@@ -701,10 +710,10 @@ export function BookmarkCard({ bookmark }: BookmarkCardProps) {
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: '4px',
+            padding: '8px',
             display: 'flex',
             alignItems: 'center',
-            borderRadius: '4px',
+            borderRadius: '8px',
             transition: 'all 0.2s ease',
           }}
           onMouseEnter={(e) => {

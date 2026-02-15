@@ -19,15 +19,15 @@ export function ActionRow({
       {/* Left group: Copy, Play, ThumbsUp, ThumbsDown */}
       <div className="flex items-center gap-0.5">
         <button
-          className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
-          style={{ color: 'var(--text-ghost)' }}
+          className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-md transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--text-tertiary)';
+            e.currentTarget.style.color = 'var(--text-secondary)';
             e.currentTarget.style.backgroundColor =
               'color-mix(in srgb, var(--text-primary) 5%, transparent)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--text-ghost)';
+            e.currentTarget.style.color = 'var(--text-tertiary)';
             e.currentTarget.style.backgroundColor = 'transparent';
           }}
           aria-label="Copy"
@@ -35,15 +35,15 @@ export function ActionRow({
           <Copy size={15} strokeWidth={1.5} />
         </button>
         <button
-          className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
-          style={{ color: 'var(--text-ghost)' }}
+          className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-md transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--text-tertiary)';
+            e.currentTarget.style.color = 'var(--text-secondary)';
             e.currentTarget.style.backgroundColor =
               'color-mix(in srgb, var(--text-primary) 5%, transparent)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--text-ghost)';
+            e.currentTarget.style.color = 'var(--text-tertiary)';
             e.currentTarget.style.backgroundColor = 'transparent';
           }}
           aria-label="Thumbs up"
@@ -51,15 +51,15 @@ export function ActionRow({
           <ThumbsUp size={15} strokeWidth={1.5} />
         </button>
         <button
-          className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
-          style={{ color: 'var(--text-ghost)' }}
+          className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-md transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--text-tertiary)';
+            e.currentTarget.style.color = 'var(--text-secondary)';
             e.currentTarget.style.backgroundColor =
               'color-mix(in srgb, var(--text-primary) 5%, transparent)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--text-ghost)';
+            e.currentTarget.style.color = 'var(--text-tertiary)';
             e.currentTarget.style.backgroundColor = 'transparent';
           }}
           aria-label="Thumbs down"
@@ -71,17 +71,17 @@ export function ActionRow({
       {/* Right side: Bookmark icon */}
       <button
         onClick={onBookmarkClick}
-        className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
+        className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-md transition-colors"
         style={{
-          color: isBookmarked ? '#BB4823' : 'var(--text-ghost)',
+          color: isBookmarked ? '#BB4823' : 'var(--text-tertiary)',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.color = isBookmarked ? '#BB4823' : 'var(--text-tertiary)';
+          e.currentTarget.style.color = isBookmarked ? '#BB4823' : 'var(--text-secondary)';
           e.currentTarget.style.backgroundColor =
             'color-mix(in srgb, var(--text-primary) 5%, transparent)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.color = isBookmarked ? '#BB4823' : 'var(--text-ghost)';
+          e.currentTarget.style.color = isBookmarked ? '#BB4823' : 'var(--text-tertiary)';
           e.currentTarget.style.backgroundColor = 'transparent';
         }}
         aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
