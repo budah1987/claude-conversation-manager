@@ -260,6 +260,30 @@ export function Toast() {
               >
                 {toast.message}
               </span>
+
+              {/* Spacer */}
+              {toast.onUndo && <div className="flex-1" />}
+
+              {/* Undo button */}
+              {toast.onUndo && (
+                <button
+                  onClick={() => {
+                    toast.onUndo?.();
+                    dismissToast();
+                  }}
+                  className="px-2.5 py-1 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap"
+                  style={{ color: 'var(--toast-accent)' }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      'color-mix(in srgb, var(--toast-accent) 10%, transparent)')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = 'transparent')
+                  }
+                >
+                  Undo
+                </button>
+              )}
             </div>
           )}
         </div>

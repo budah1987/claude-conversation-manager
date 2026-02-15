@@ -9,6 +9,7 @@ export interface ToastConfig {
   message: string;
   onAddNote?: () => void;
   onView?: () => void;
+  onUndo?: () => void;
 }
 
 interface ToastContextValue {

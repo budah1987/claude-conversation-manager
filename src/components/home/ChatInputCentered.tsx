@@ -2,7 +2,15 @@
 
 import { Plus, ArrowUp, ChevronDown } from 'lucide-react';
 
-export function ChatInputCentered() {
+interface ChatInputCenteredProps {
+  value?: string;
+  isTyping?: boolean;
+  onSend?: () => void;
+}
+
+export function ChatInputCentered({ value, isTyping, onSend }: ChatInputCenteredProps) {
+  const hasText = value && value.length > 0;
+
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       <div
@@ -15,14 +23,22 @@ export function ChatInputCentered() {
       >
         {/* Text area row */}
         <div className="px-4 pt-4 pb-2">
-          <div className="flex items-center gap-1">
-            <span className="text-[var(--text-ghost)] text-[15px]">
-              How can Claude help you today?
-            </span>
-            <span
-              className="w-[2px] h-[18px] bg-[var(--text-tertiary)] cursor-blink"
-              aria-hidden="true"
-            />
+          <div className="flex items-center gap-0">
+            {hasText ? (
+              <span className="text-[var(--text-primary)] text-[15px]">
+                {value}
+              </span>
+            ) : (
+              <span className="text-[var(--text-ghost)] text-[15px]">
+                How can Claude help you today?
+              </span>
+            )}
+            {(isTyping || !hasText) && (
+              <span
+                className="w-[2px] h-[18px] bg-[var(--text-tertiary)] cursor-blink ml-[1px]"
+                aria-hidden="true"
+              />
+            )}
           </div>
         </div>
 
@@ -47,6 +63,7 @@ export function ChatInputCentered() {
 
           <button
             aria-label="Send message"
+            onClick={onSend}
             className="flex items-center justify-center w-8 h-8 text-white transition-opacity hover:opacity-90 focus-ring"
             style={{
               backgroundColor: 'var(--accent-primary)',

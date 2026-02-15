@@ -15,6 +15,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ALL_CONVERSATIONS } from '@/data/conversations';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { useTheme } from '@/hooks/useTheme';
+import { Sun, Moon } from 'lucide-react';
 
 // --- Sidebar toggle icon (from Figma export, stroke inherits theme via currentColor) ---
 function SidebarToggleIcon({ size = 18 }: { size?: number }) {
@@ -312,6 +314,60 @@ function ExpandedContent({
   );
 }
 
+// --- Collapsed theme toggle (icon only) ---
+function CollapsedThemeToggle() {
+  const { theme, mounted, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+
+  if (!mounted) {
+    return (
+      <button
+        aria-label="Toggle theme"
+        className="w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors"
+      >
+        <span className="w-5 h-5" />
+      </button>
+    );
+  }
+
+  return (
+    <button
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Light mode' : 'Dark mode'}
+      onClick={toggleTheme}
+      className="w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors"
+    >
+      <span className="w-5 h-5 relative overflow-hidden flex items-center justify-center">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {isDark ? (
+            <motion.div
+              key="moon"
+              initial={{ rotate: -90, scale: 0, opacity: 0 }}
+              animate={{ rotate: 0, scale: 1, opacity: 1 }}
+              exit={{ rotate: 90, scale: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+              className="absolute flex items-center justify-center"
+            >
+              <Moon size={20} strokeWidth={1.5} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="sun"
+              initial={{ rotate: 90, scale: 0, opacity: 0 }}
+              animate={{ rotate: 0, scale: 1, opacity: 1 }}
+              exit={{ rotate: -90, scale: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+              className="absolute flex items-center justify-center"
+            >
+              <Sun size={20} strokeWidth={1.5} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </span>
+    </button>
+  );
+}
+
 // --- Collapsed sidebar content (icon rail) ---
 function CollapsedContent({
   onSearchClick,
@@ -375,13 +431,20 @@ function CollapsedContent({
         />
       </nav>
 
-      {/* Bottom avatar */}
-      <div
-        className="w-7 h-7 rounded-full bg-[var(--accent-avatar)] shrink-0 cursor-pointer flex items-center justify-center text-[12px] font-semibold text-white"
-        role="button"
-        aria-label="User profile"
-      >
-        A
+      {/* Bottom: theme toggle + settings + avatar */}
+      <div className="flex flex-col gap-1 items-center mt-auto">
+        <CollapsedThemeToggle />
+        <NavItemCollapsed
+          icon={<Settings size={20} strokeWidth={1.5} />}
+          label="Settings"
+        />
+        <div
+          className="w-7 h-7 rounded-full bg-[var(--accent-avatar)] shrink-0 cursor-pointer flex items-center justify-center text-[12px] font-semibold text-white"
+          role="button"
+          aria-label="User profile"
+        >
+          A
+        </div>
       </div>
     </>
   );
@@ -411,20 +474,32 @@ export function Sidebar({
     }
   };
 
+  const handleSidebarDoubleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, [role="button"]')) return;
+    onToggle();
+  };
+
   return (
     <>
       {/* ===== DESKTOP (≥1024px) ===== */}
-      <AnimatePresence mode="wait">
-        {isOpen ? (
-          <motion.aside
-            key="expanded"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 260, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="hidden lg:flex h-full bg-[var(--surface-sidebar)] border-r-[0.5px] border-[var(--border-secondary)] flex-col shrink-0 z-20 overflow-hidden"
-          >
-            <div className="w-[260px] flex flex-col h-full py-3 px-3">
+      <motion.aside
+        initial={false}
+        animate={{ width: isOpen ? 260 : 52 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        className="hidden lg:flex h-full bg-[var(--surface-sidebar)] border-r-[0.5px] border-[var(--border-secondary)] flex-col shrink-0 z-20 overflow-hidden"
+        onDoubleClick={handleSidebarDoubleClick}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {isOpen ? (
+            <motion.div
+              key="expanded"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="w-[260px] flex flex-col h-full py-3 px-3"
+            >
               {/* Header: Claude wordmark + toggle */}
               <div className="flex items-center justify-between px-3 pb-3">
                 <span
@@ -448,24 +523,24 @@ export function Sidebar({
                 onConversationClick={onConversationClick}
                 activeConversationId={activeConversationId}
               />
-            </div>
-          </motion.aside>
-        ) : (
-          <motion.aside
-            key="collapsed"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 52, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="hidden lg:flex h-full bg-[var(--surface-sidebar)] border-r-[0.5px] border-[var(--border-secondary)] flex-col items-center py-3 shrink-0 z-20 overflow-hidden"
-          >
-            <CollapsedContent
-              onSearchClick={onSearchClick}
-              onToggle={onToggle}
-            />
-          </motion.aside>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="collapsed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex flex-col items-center h-full py-3"
+            >
+              <CollapsedContent
+                onSearchClick={onSearchClick}
+                onToggle={onToggle}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.aside>
 
       {/* ===== MOBILE / TABLET (<1024px) ===== */}
 

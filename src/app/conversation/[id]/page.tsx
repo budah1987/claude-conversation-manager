@@ -26,30 +26,9 @@ import { ActionRow } from '@/components/conversation/ActionRow';
 import { CheckboxPanel } from '@/components/conversation/CheckboxPanel';
 import { BookmarkIndicator } from '@/components/conversation/BookmarkIndicator';
 import type { Message } from '@/types';
+import { parseMessageContent, getLineColor, hasCodeBlocks, extractFirstCodeBlock } from '@/lib/codeBlockUtils';
 
-// --- Code block parser ---
-function parseMessageContent(content: string) {
-  const parts: { type: 'text' | 'code'; content: string }[] = [];
-  const segments = content.split('```');
-
-  segments.forEach((segment, i) => {
-    if (i % 2 === 0) {
-      // Regular text
-      if (segment) {
-        parts.push({ type: 'text', content: segment });
-      }
-    } else {
-      // Code block — strip optional language identifier from first line
-      const lines = segment.split('\n');
-      const firstLine = lines[0]?.trim();
-      const hasLang = firstLine && !firstLine.includes(' ') && lines.length > 1;
-      const code = hasLang ? lines.slice(1).join('\n') : segment;
-      parts.push({ type: 'code', content: code.trim() });
-    }
-  });
-
-  return parts;
-}
+// --- Code block parser (now imported from @/lib/codeBlockUtils) ---
 
 // --- Inline markdown: bold ---
 function renderInline(text: string) {
@@ -110,11 +89,17 @@ function CodeBlock({ code }: { code: string }) {
     <pre
       className="my-3 rounded-lg p-4 overflow-x-auto text-[13px] leading-relaxed"
       style={{
-        backgroundColor: 'var(--surface-input)',
+        backgroundColor: 'var(--code-bg)',
         fontFamily: 'var(--font-mono)',
       }}
     >
-      <code>{code}</code>
+      <code>
+        {code.split('\n').map((line, i) => (
+          <div key={i} style={{ color: getLineColor(line) }}>
+            {line || ' '}
+          </div>
+        ))}
+      </code>
     </pre>
   );
 }
@@ -207,7 +192,14 @@ function ChatMessage({
   conversationTitle: string;
   userQuery?: string;
 }) {
-  const { isBookmarked, addBookmark, removeBookmark, getBookmarkForMessage } = useBookmarks();
+  const {
+    isBookmarked,
+    addBookmark,
+    removeBookmark,
+    softRemoveBookmark,
+    restoreBookmark,
+    getBookmarkForMessage,
+  } = useBookmarks();
   const { showToast } = useToast();
   const [showCheckboxPanel, setShowCheckboxPanel] = useState(false);
 
@@ -255,14 +247,27 @@ function ChatMessage({
 
   const handleBookmarkClick = () => {
     if (messageIsBookmarked) {
-      // Remove bookmark
+      // Remove bookmark with undo
       const bookmark = getBookmarkForMessage(message.id);
       if (bookmark) {
         const bookmarkId = bookmark.id;
-        removeBookmark(bookmarkId);
+
+        // Soft remove (can be undone)
+        softRemoveBookmark(bookmarkId);
+
+        // Set timer to permanently remove after 4 seconds
+        const removalTimer = setTimeout(() => {
+          removeBookmark(bookmarkId);
+        }, 4000);
+
+        // Show toast with undo
         showToast({
           type: 'remove',
           message: 'Bookmark removed',
+          onUndo: () => {
+            clearTimeout(removalTimer);
+            restoreBookmark(bookmarkId);
+          },
         });
       }
     } else {
@@ -278,12 +283,18 @@ function ChatMessage({
   };
 
   const createBookmark = (selectedSolutionIndices?: number[]) => {
+    // Detect code blocks in message content
+    const hasCode = hasCodeBlocks(message.content);
+    const codeBlockData = hasCode ? extractFirstCodeBlock(message.content) : null;
+
     const bookmark = {
       id: `bm-${Date.now()}`,
       variant: (hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length > 1)
         ? 'multi-bookmark'
         : (hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length === 1)
         ? 'single-option'
+        : hasCode  // Check for code blocks!
+        ? 'single-code'
         : 'single-text',
       conversationId,
       conversationTitle,
@@ -293,6 +304,14 @@ function ChatMessage({
       fullResponse: message.content,
       tag: 'code' as const,
       createdAt: new Date().toISOString(),
+
+      // Populate codeBlock and codeLanguage properties
+      ...(codeBlockData ? {
+        codeBlock: codeBlockData.code,
+        codeLanguage: codeBlockData.language,
+      } : {}),
+
+      // Existing solution handling
       ...(hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length > 1 ? {
         selectedOptions: selectedSolutionIndices.map((i) => message.solutions![i]),
         unselectedOptions: message.solutions!.filter((_, i) => !selectedSolutionIndices.includes(i)),
@@ -335,8 +354,8 @@ function ChatMessage({
         className="min-w-0 w-full relative group"
         onMouseEnter={(e) => {
           if (messageIsBookmarked) {
-            e.currentTarget.style.backgroundColor = '#FAFAF9';
-            e.currentTarget.style.borderColor = 'rgba(31, 30, 29, 0.2)';
+            e.currentTarget.style.backgroundColor = 'var(--query-bg)';
+            e.currentTarget.style.borderColor = 'var(--query-border)';
           } else {
             e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--accent-primary) 6%, transparent)';
             e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--accent-primary) 30%, transparent)';
@@ -344,8 +363,8 @@ function ChatMessage({
         }}
         onMouseLeave={(e) => {
           if (messageIsBookmarked) {
-            e.currentTarget.style.backgroundColor = '#FFFFFF';
-            e.currentTarget.style.borderColor = 'rgba(31, 30, 29, 0.15)';
+            e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+            e.currentTarget.style.borderColor = 'var(--query-border)';
           } else {
             e.currentTarget.style.backgroundColor = 'transparent';
             e.currentTarget.style.borderColor = 'transparent';
@@ -354,11 +373,11 @@ function ChatMessage({
         style={{
           borderRadius: '12px',
           margin: '-1px',
-          padding: messageIsBookmarked ? '16px 24px' : '16px',
+          padding: '16px',
           transition: 'background-color 150ms ease, border-color 150ms ease',
           border: '1px solid transparent',
-          backgroundColor: messageIsBookmarked ? '#FFFFFF' : 'transparent',
-          borderColor: messageIsBookmarked ? 'rgba(31, 30, 29, 0.15)' : 'transparent',
+          backgroundColor: messageIsBookmarked ? 'var(--card-bg)' : 'transparent',
+          borderColor: messageIsBookmarked ? 'var(--query-border)' : 'transparent',
         }}
       >
         {/* Bookmark indicator for bookmarked messages */}

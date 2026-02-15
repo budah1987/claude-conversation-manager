@@ -373,4 +373,21 @@ export const CONVERSATION_MESSAGES: Record<string, Message[]> = {
       timestamp: '4:23 PM',
     },
   ],
+
+  // === react-demo: What is react.js? ===
+  'react-demo': [
+    {
+      id: 'rd-1',
+      role: 'user',
+      content: 'What is react.js?',
+      timestamp: '12:00 PM',
+    },
+    {
+      id: 'rd-2',
+      role: 'assistant',
+      content:
+        "**React** (also called React.js or ReactJS) is an open-source JavaScript library for building user interfaces. It was created by Jordan Walke at Meta (formerly Facebook) and released in 2013. React is used to build single-page applications and is particularly well-suited for creating complex, interactive UIs that need to update efficiently.\n\nAt its core, React introduces a few key concepts:\n\n- **Components** — React apps are built from reusable, self-contained pieces called components. Each component manages its own state and renders a piece of the UI. You compose small components together to build entire pages.\n\n- **JSX** — React uses a syntax extension called JSX that lets you write HTML-like markup directly in JavaScript. Under the hood, JSX compiles to regular JavaScript function calls.\n\n- **Virtual DOM** — Instead of updating the browser's DOM directly (which is slow), React maintains a lightweight copy called the virtual DOM. When state changes, React calculates the minimal set of DOM updates needed and applies them in a batch. This makes UI updates fast and predictable.\n\n- **One-way data flow** — Data in React flows downward from parent components to children via props. This makes it easier to reason about how data moves through your application compared to two-way binding approaches.\n\nReact has a massive ecosystem including tools like Next.js (full-stack framework), React Router (navigation), and React Native (mobile apps). It remains one of the most widely adopted frontend technologies, used by companies like Meta, Netflix, Airbnb, and thousands of others.",
+      timestamp: '12:00 PM',
+    },
+  ],
 };

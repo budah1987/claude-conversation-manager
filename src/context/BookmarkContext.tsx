@@ -8,18 +8,23 @@ import { SEED_BOOKMARKS } from '@/data/bookmarks';
 type BookmarkAction =
   | { type: 'ADD_BOOKMARK'; payload: Bookmark }
   | { type: 'REMOVE_BOOKMARK'; payload: string } // bookmark id
+  | { type: 'SOFT_REMOVE_BOOKMARK'; payload: string } // soft delete for undo
+  | { type: 'RESTORE_BOOKMARK'; payload: string } // restore from soft delete
   | { type: 'UPDATE_NOTE'; payload: { id: string; note: string } }
   | { type: 'INITIALIZE'; payload: Bookmark[] };
 
 // State
 interface BookmarkState {
   bookmarks: Bookmark[];
+  pendingRemoval: Set<string>;
 }
 
 // Context value
 interface BookmarkContextValue extends BookmarkState {
   addBookmark: (bookmark: Bookmark) => void;
   removeBookmark: (id: string) => void;
+  softRemoveBookmark: (id: string) => void;
+  restoreBookmark: (id: string) => void;
   updateNote: (id: string, note: string) => void;
   isBookmarked: (messageId: string) => boolean;
   getBookmarkForMessage: (messageId: string) => Bookmark | undefined;
@@ -31,20 +36,41 @@ const BookmarkContext = createContext<BookmarkContextValue | undefined>(undefine
 function bookmarkReducer(state: BookmarkState, action: BookmarkAction): BookmarkState {
   switch (action.type) {
     case 'INITIALIZE':
-      return { bookmarks: action.payload };
+      return { bookmarks: action.payload, pendingRemoval: new Set() };
 
     case 'ADD_BOOKMARK':
       return {
+        ...state,
         bookmarks: [...state.bookmarks, action.payload],
       };
 
-    case 'REMOVE_BOOKMARK':
+    case 'SOFT_REMOVE_BOOKMARK':
+      return {
+        ...state,
+        pendingRemoval: new Set([...state.pendingRemoval, action.payload]),
+      };
+
+    case 'RESTORE_BOOKMARK': {
+      const newPendingRemoval = new Set(state.pendingRemoval);
+      newPendingRemoval.delete(action.payload);
+      return {
+        ...state,
+        pendingRemoval: newPendingRemoval,
+      };
+    }
+
+    case 'REMOVE_BOOKMARK': {
+      const newPendingRemoval = new Set(state.pendingRemoval);
+      newPendingRemoval.delete(action.payload);
       return {
         bookmarks: state.bookmarks.filter((b) => b.id !== action.payload),
+        pendingRemoval: newPendingRemoval,
       };
+    }
 
     case 'UPDATE_NOTE':
       return {
+        ...state,
         bookmarks: state.bookmarks.map((b) =>
           b.id === action.payload.id ? { ...b, note: action.payload.note } : b
         ),
@@ -57,7 +83,10 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
 
 // Provider
 export function BookmarkProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(bookmarkReducer, { bookmarks: [] });
+  const [state, dispatch] = useReducer(bookmarkReducer, {
+    bookmarks: [],
+    pendingRemoval: new Set(),
+  });
 
   // Initialize from localStorage or seed data
   useEffect(() => {
@@ -76,12 +105,15 @@ export function BookmarkProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Persist to localStorage on changes
+  // Persist to localStorage on changes (excluding pending removals)
   useEffect(() => {
     if (state.bookmarks.length > 0) {
-      localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+      const activeBookmarks = state.bookmarks.filter(
+        (b) => !state.pendingRemoval.has(b.id)
+      );
+      localStorage.setItem('bookmarks', JSON.stringify(activeBookmarks));
     }
-  }, [state.bookmarks]);
+  }, [state.bookmarks, state.pendingRemoval]);
 
   const addBookmark = (bookmark: Bookmark) => {
     dispatch({ type: 'ADD_BOOKMARK', payload: bookmark });
@@ -91,12 +123,21 @@ export function BookmarkProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'REMOVE_BOOKMARK', payload: id });
   };
 
+  const softRemoveBookmark = (id: string) => {
+    dispatch({ type: 'SOFT_REMOVE_BOOKMARK', payload: id });
+  };
+
+  const restoreBookmark = (id: string) => {
+    dispatch({ type: 'RESTORE_BOOKMARK', payload: id });
+  };
+
   const updateNote = (id: string, note: string) => {
     dispatch({ type: 'UPDATE_NOTE', payload: { id, note } });
   };
 
   const isBookmarked = (messageId: string): boolean => {
-    return state.bookmarks.some((b) => b.messageId === messageId);
+    const bookmark = state.bookmarks.find((b) => b.messageId === messageId);
+    return bookmark ? !state.pendingRemoval.has(bookmark.id) : false;
   };
 
   const getBookmarkForMessage = (messageId: string): Bookmark | undefined => {
@@ -109,6 +150,8 @@ export function BookmarkProvider({ children }: { children: ReactNode }) {
         ...state,
         addBookmark,
         removeBookmark,
+        softRemoveBookmark,
+        restoreBookmark,
         updateNote,
         isBookmarked,
         getBookmarkForMessage,

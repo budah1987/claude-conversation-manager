@@ -186,4 +186,113 @@ Best,
     fullResponse: 'For an analytics dashboard with multiple data views, a left sidebar navigation is generally the better choice. It provides persistent access to all sections without taking up valuable vertical space for your charts and data tables. Top navigation works better for marketing sites or apps with fewer than 5-6 main sections. With analytics, users typically need to switch between views frequently, and a collapsible sidebar gives them that flexibility.',
     createdAt: '2026-01-05T14:20:00Z',
   },
+
+  // Long code block variant - tests scroll indicators and expand functionality
+  {
+    id: 'bm-long-code',
+    variant: 'single-code',
+    conversationId: 'c1',
+    conversationTitle: 'Database connection pool configuration',
+    messageId: 'm-pool-config',
+    userQuery: 'Show me a complete database pool configuration with all edge cases handled',
+    responsePreview: 'Here\'s a production-ready database connection pool with comprehensive error handling...',
+    fullResponse: 'Here\'s a production-ready database connection pool configuration that handles connection lifecycle, error recovery, and monitoring:',
+    codeBlock: `import { Pool, PoolConfig } from 'pg';
+import { EventEmitter } from 'events';
+
+// Pool configuration interface
+interface DatabasePoolConfig extends PoolConfig {
+  max: number;
+  min: number;
+  idleTimeoutMillis: number;
+  connectionTimeoutMillis: number;
+  maxUses: number;
+  allowExitOnIdle: boolean;
+}
+
+// Create production pool configuration
+const poolConfig: DatabasePoolConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
+  database: process.env.DB_NAME || 'production_db',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD,
+
+  // Connection pool sizing
+  max: 50,                    // Maximum pool size
+  min: 10,                    // Minimum pool size (warm connections)
+  idleTimeoutMillis: 30000,   // How long a client is allowed to remain idle
+  connectionTimeoutMillis: 5000, // Max time to wait for connection
+  maxUses: 7500,              // Recycle connections after 7500 uses
+  allowExitOnIdle: true,      // Allow pool to close when no connections
+
+  // SSL Configuration
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: true,
+    ca: process.env.DB_CA_CERT,
+  } : false,
+
+  // Statement timeout (30 seconds)
+  statement_timeout: 30000,
+
+  // Query timeout (15 seconds)
+  query_timeout: 15000,
+};
+
+// Initialize pool with event handlers
+const pool = new Pool(poolConfig);
+
+// Connection event handlers
+pool.on('connect', (client) => {
+  console.log('New client connected to pool');
+
+  // Set default timezone for this connection
+  client.query('SET timezone = "UTC"');
+});
+
+pool.on('acquire', (client) => {
+  console.log('Client acquired from pool');
+});
+
+pool.on('remove', (client) => {
+  console.log('Client removed from pool');
+});
+
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
+  // Don't exit process, let pool handle reconnection
+});
+
+// Pool monitoring
+setInterval(async () => {
+  const totalCount = pool.totalCount;
+  const idleCount = pool.idleCount;
+  const waitingCount = pool.waitingCount;
+
+  console.log({
+    total: totalCount,
+    idle: idleCount,
+    waiting: waitingCount,
+    active: totalCount - idleCount,
+  });
+
+  // Alert if pool is saturated
+  if (waitingCount > 5) {
+    console.warn('Pool saturation detected! Consider increasing max pool size.');
+  }
+}, 30000);
+
+// Graceful shutdown handler
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, draining pool...');
+  await pool.end();
+  console.log('Pool drained, exiting...');
+  process.exit(0);
+});
+
+export default pool;`,
+    codeLanguage: 'typescript',
+    project: 'Backend API',
+    createdAt: '2026-02-14T10:30:00Z',
+  },
 ];
