@@ -45,6 +45,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {process.env.NODE_ENV === 'development' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){var oe=console.error;console.error=function(){if(typeof arguments[0]==='string'&&arguments[0].indexOf('must be unwrapped with')!==-1)return;oe.apply(console,arguments)};})()`,
+            }}
+          />
+        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=localStorage.getItem('theme-preference');var t=s||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,

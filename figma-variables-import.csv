@@ -1,0 +1,54 @@
+Collection,Variable,Type,Light,Dark,Scoping
+Design Tokens,bg/primary,COLOR,#FFFFFF,#30302E,FRAME_FILL
+Design Tokens,bg/secondary,COLOR,#F5F4ED,#262624,FRAME_FILL
+Design Tokens,bg/tertiary,COLOR,#FAF9F5,#141413,FRAME_FILL
+Design Tokens,bg/inverse,COLOR,#141413,#FAF9F5,FRAME_FILL
+Design Tokens,bg/info,COLOR,#D6E4F6,#253E5F,FRAME_FILL
+Design Tokens,bg/danger,COLOR,#B53333,#DD5353,FRAME_FILL
+Design Tokens,bg/success,COLOR,#E9F1DC,#1B4614,FRAME_FILL
+Design Tokens,bg/warning,COLOR,#F6EEDF,#483A0F,FRAME_FILL
+Design Tokens,text/primary,COLOR,#141413,#FAF9F5,TEXT_FILL
+Design Tokens,text/secondary,COLOR,#3D3D3A,#C2C0B6,TEXT_FILL
+Design Tokens,text/tertiary,COLOR,#73726C,#9C9A92,TEXT_FILL
+Design Tokens,text/inverse,COLOR,#FFFFFF,#141413,TEXT_FILL
+Design Tokens,text/info,COLOR,#3266AD,#80AADD,TEXT_FILL
+Design Tokens,text/danger,COLOR,#7F2C28,#EE8884,TEXT_FILL
+Design Tokens,text/success,COLOR,#265B19,#7AB948,TEXT_FILL
+Design Tokens,text/warning,COLOR,#5A4815,#D1A041,TEXT_FILL
+Design Tokens,text/ghost,COLOR,rgba(115 114 108 / 0.5),rgba(156 154 146 / 0.5),TEXT_FILL
+Design Tokens,border/primary,COLOR,rgba(31 30 29 / 0.4),rgba(222 220 209 / 0.4),STROKE
+Design Tokens,border/secondary,COLOR,rgba(31 30 29 / 0.3),rgba(222 220 209 / 0.3),STROKE
+Design Tokens,border/tertiary,COLOR,rgba(31 30 29 / 0.15),rgba(222 220 209 / 0.15),STROKE
+Design Tokens,border/info,COLOR,#4682D5,#4682D5,STROKE
+Design Tokens,border/danger,COLOR,#A73D39,#CD5C58,STROKE
+Design Tokens,border/success,COLOR,#437426,#599130,STROKE
+Design Tokens,border/warning,COLOR,#805C1F,#A87829,STROKE
+Design Tokens,surface/app,COLOR,#FAF9F5,#262624,FRAME_FILL
+Design Tokens,surface/card,COLOR,#FFFFFF,#262624,FRAME_FILL
+Design Tokens,surface/sidebar,COLOR,#FAF9F5,#262624,FRAME_FILL
+Design Tokens,surface/input,COLOR,#FFFFFF,#262624,FRAME_FILL
+Design Tokens,surface/message-user,COLOR,#F0EEE6,#30302E,FRAME_FILL
+Design Tokens,surface/hover,COLOR,rgba(31 30 29 / 0.05),rgba(250 249 245 / 0.05),FRAME_FILL
+Design Tokens,accent/primary,COLOR,#C6613F,#C6613F,ALL_FILLS
+Design Tokens,accent/avatar,COLOR,#C46686,#C46686,FRAME_FILL
+Design Tokens,card/bg,COLOR,#FFFFFF,#262624,FRAME_FILL
+Design Tokens,card/query-bg,COLOR,#F5F4ED,#30302E,FRAME_FILL
+Design Tokens,card/query-border,COLOR,rgba(31 30 29 / 0.15),rgba(222 220 209 / 0.15),STROKE
+Design Tokens,card/query-text,COLOR,#141413,#FAF9F5,TEXT_FILL
+Design Tokens,code/bg,COLOR,#1E1E1D,#1A1A19,FRAME_FILL
+Design Tokens,code/text,COLOR,#C2C0B2,#C2C0B2,TEXT_FILL
+Design Tokens,code/text-muted,COLOR,#637777,#637777,TEXT_FILL
+Design Tokens,note/bg,COLOR,#F5F4ED,#30302E,FRAME_FILL
+Design Tokens,note/border,COLOR,rgba(31 30 29 / 0.15),rgba(222 220 209 / 0.15),STROKE
+Design Tokens,note/text,COLOR,#141413,#FAF9F5,TEXT_FILL
+Design Tokens,link/text,COLOR,#4682D5,#80AADD,TEXT_FILL
+Design Tokens,toast/bg,COLOR,#141413,#FAF9F5,FRAME_FILL
+Design Tokens,toast/text,COLOR,#FAF9F5,#141413,TEXT_FILL
+Design Tokens,toast/secondary,COLOR,#C2C0B6,#3D3D3A,TEXT_FILL
+Design Tokens,toast/accent,COLOR,#C6613F,#C6613F,ALL_FILLS
+Design Tokens,toast/check-bg,COLOR,rgba(67 116 38 / 0.15),rgba(67 116 38 / 0.12),FRAME_FILL
+Design Tokens,toast/check-color,COLOR,#7AB948,#437426,ALL_FILLS
+Design Tokens,sidebar/button-active-bg,COLOR,rgba(31 30 29 / 0.08),rgba(250 249 245 / 0.1),FRAME_FILL
+Design Tokens,ring/primary,COLOR,rgba(20 20 19 / 0.7),rgba(250 249 245 / 0.7),STROKE
+Design Tokens,ring/info,COLOR,rgba(50 102 173 / 0.5),rgba(128 170 221 / 0.5),STROKE
+Design Tokens,ring/danger,COLOR,rgba(167 61 57 / 0.5),rgba(205 92 88 / 0.5),STROKE

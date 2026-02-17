@@ -1,0 +1,414 @@
+{
+  "collection": "Design Tokens",
+  "modes": ["Light", "Dark"],
+  "variables": [
+    {
+      "name": "bg/primary",
+      "type": "COLOR",
+      "values": { "Light": "#FFFFFF", "Dark": "#30302E" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "bg/secondary",
+      "type": "COLOR",
+      "values": { "Light": "#F5F4ED", "Dark": "#262624" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "bg/tertiary",
+      "type": "COLOR",
+      "values": { "Light": "#FAF9F5", "Dark": "#141413" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "bg/inverse",
+      "type": "COLOR",
+      "values": { "Light": "#141413", "Dark": "#FAF9F5" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "bg/info",
+      "type": "COLOR",
+      "values": { "Light": "#D6E4F6", "Dark": "#253E5F" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "bg/danger",
+      "type": "COLOR",
+      "values": { "Light": "#B53333", "Dark": "#DD5353" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "bg/success",
+      "type": "COLOR",
+      "values": { "Light": "#E9F1DC", "Dark": "#1B4614" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "bg/warning",
+      "type": "COLOR",
+      "values": { "Light": "#F6EEDF", "Dark": "#483A0F" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "text/primary",
+      "type": "COLOR",
+      "values": { "Light": "#141413", "Dark": "#FAF9F5" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "text/secondary",
+      "type": "COLOR",
+      "values": { "Light": "#3D3D3A", "Dark": "#C2C0B6" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "text/tertiary",
+      "type": "COLOR",
+      "values": { "Light": "#73726C", "Dark": "#9C9A92" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "text/inverse",
+      "type": "COLOR",
+      "values": { "Light": "#FFFFFF", "Dark": "#141413" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "text/info",
+      "type": "COLOR",
+      "values": { "Light": "#3266AD", "Dark": "#80AADD" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "text/danger",
+      "type": "COLOR",
+      "values": { "Light": "#7F2C28", "Dark": "#EE8884" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "text/success",
+      "type": "COLOR",
+      "values": { "Light": "#265B19", "Dark": "#7AB948" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "text/warning",
+      "type": "COLOR",
+      "values": { "Light": "#5A4815", "Dark": "#D1A041" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "border/primary",
+      "type": "COLOR",
+      "values": { "Light": "rgba(31,30,29,0.4)", "Dark": "rgba(222,220,209,0.4)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "border/secondary",
+      "type": "COLOR",
+      "values": { "Light": "rgba(31,30,29,0.3)", "Dark": "rgba(222,220,209,0.3)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "border/tertiary",
+      "type": "COLOR",
+      "values": { "Light": "rgba(31,30,29,0.15)", "Dark": "rgba(222,220,209,0.15)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "border/info",
+      "type": "COLOR",
+      "values": { "Light": "#4682D5", "Dark": "#4682D5" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "border/danger",
+      "type": "COLOR",
+      "values": { "Light": "#A73D39", "Dark": "#CD5C58" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "border/success",
+      "type": "COLOR",
+      "values": { "Light": "#437426", "Dark": "#599130" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "border/warning",
+      "type": "COLOR",
+      "values": { "Light": "#805C1F", "Dark": "#A87829" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "surface/app",
+      "type": "COLOR",
+      "values": { "Light": "#FAF9F5", "Dark": "#262624" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "surface/card",
+      "type": "COLOR",
+      "values": { "Light": "#FFFFFF", "Dark": "#262624" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "surface/sidebar",
+      "type": "COLOR",
+      "values": { "Light": "#FAF9F5", "Dark": "#262624" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "surface/input",
+      "type": "COLOR",
+      "values": { "Light": "#FFFFFF", "Dark": "#262624" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "surface/message-user",
+      "type": "COLOR",
+      "values": { "Light": "#F0EEE6", "Dark": "#30302E" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "accent/primary",
+      "type": "COLOR",
+      "values": { "Light": "#C6613F", "Dark": "#C6613F" },
+      "scoping": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"]
+    },
+    {
+      "name": "accent/avatar",
+      "type": "COLOR",
+      "values": { "Light": "#C46686", "Dark": "#C46686" },
+      "scoping": ["FRAME_FILL", "SHAPE_FILL"]
+    },
+    {
+      "name": "card/bg",
+      "type": "COLOR",
+      "values": { "Light": "#FFFFFF", "Dark": "#262624" },
+      "scoping": ["FRAME_FILL"]
+    },
+    {
+      "name": "card/query-bg",
+      "type": "COLOR",
+      "values": { "Light": "#F5F4ED", "Dark": "#30302E" },
+      "scoping": ["FRAME_FILL"]
+    },
+    {
+      "name": "card/query-border",
+      "type": "COLOR",
+      "values": { "Light": "rgba(31,30,29,0.15)", "Dark": "rgba(222,220,209,0.15)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "card/query-text",
+      "type": "COLOR",
+      "values": { "Light": "#141413", "Dark": "#FAF9F5" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "code/bg",
+      "type": "COLOR",
+      "values": { "Light": "#1E1E1D", "Dark": "#1A1A19" },
+      "scoping": ["FRAME_FILL"]
+    },
+    {
+      "name": "code/text",
+      "type": "COLOR",
+      "values": { "Light": "#C2C0B2", "Dark": "#C2C0B2" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "code/text-muted",
+      "type": "COLOR",
+      "values": { "Light": "#637777", "Dark": "#637777" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "note/bg",
+      "type": "COLOR",
+      "values": { "Light": "#F5F4ED", "Dark": "#30302E" },
+      "scoping": ["FRAME_FILL"]
+    },
+    {
+      "name": "note/border",
+      "type": "COLOR",
+      "values": { "Light": "rgba(31,30,29,0.15)", "Dark": "rgba(222,220,209,0.15)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "note/text",
+      "type": "COLOR",
+      "values": { "Light": "#141413", "Dark": "#FAF9F5" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "link/text",
+      "type": "COLOR",
+      "values": { "Light": "#4682D5", "Dark": "#80AADD" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "toast/bg",
+      "type": "COLOR",
+      "values": { "Light": "#141413", "Dark": "#FAF9F5" },
+      "scoping": ["FRAME_FILL"]
+    },
+    {
+      "name": "toast/text",
+      "type": "COLOR",
+      "values": { "Light": "#FAF9F5", "Dark": "#141413" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "toast/secondary",
+      "type": "COLOR",
+      "values": { "Light": "#C2C0B6", "Dark": "#3D3D3A" },
+      "scoping": ["TEXT_FILL"]
+    },
+    {
+      "name": "toast/accent",
+      "type": "COLOR",
+      "values": { "Light": "#C6613F", "Dark": "#C6613F" },
+      "scoping": ["TEXT_FILL", "FRAME_FILL"]
+    },
+    {
+      "name": "toast/check-bg",
+      "type": "COLOR",
+      "values": { "Light": "rgba(67,116,38,0.15)", "Dark": "rgba(67,116,38,0.12)" },
+      "scoping": ["FRAME_FILL"]
+    },
+    {
+      "name": "toast/check-color",
+      "type": "COLOR",
+      "values": { "Light": "#7AB948", "Dark": "#437426" },
+      "scoping": ["SHAPE_FILL", "TEXT_FILL"]
+    },
+    {
+      "name": "sidebar/button-active-bg",
+      "type": "COLOR",
+      "values": { "Light": "rgba(31,30,29,0.08)", "Dark": "rgba(250,249,245,0.1)" },
+      "scoping": ["FRAME_FILL"]
+    },
+    {
+      "name": "ring/primary",
+      "type": "COLOR",
+      "values": { "Light": "rgba(20,20,19,0.7)", "Dark": "rgba(250,249,245,0.7)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "ring/info",
+      "type": "COLOR",
+      "values": { "Light": "rgba(50,102,173,0.5)", "Dark": "rgba(128,170,221,0.5)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "ring/danger",
+      "type": "COLOR",
+      "values": { "Light": "rgba(167,61,57,0.5)", "Dark": "rgba(205,92,88,0.5)" },
+      "scoping": ["STROKE_COLOR"]
+    },
+    {
+      "name": "radius/xs",
+      "type": "FLOAT",
+      "values": { "Light": 4, "Dark": 4 },
+      "scoping": ["CORNER_RADIUS"]
+    },
+    {
+      "name": "radius/sm",
+      "type": "FLOAT",
+      "values": { "Light": 6, "Dark": 6 },
+      "scoping": ["CORNER_RADIUS"]
+    },
+    {
+      "name": "radius/md",
+      "type": "FLOAT",
+      "values": { "Light": 8, "Dark": 8 },
+      "scoping": ["CORNER_RADIUS"]
+    },
+    {
+      "name": "radius/lg",
+      "type": "FLOAT",
+      "values": { "Light": 10, "Dark": 10 },
+      "scoping": ["CORNER_RADIUS"]
+    },
+    {
+      "name": "radius/xl",
+      "type": "FLOAT",
+      "values": { "Light": 12, "Dark": 12 },
+      "scoping": ["CORNER_RADIUS"]
+    },
+    {
+      "name": "radius/full",
+      "type": "FLOAT",
+      "values": { "Light": 999, "Dark": 999 },
+      "scoping": ["CORNER_RADIUS"]
+    },
+    {
+      "name": "spacing/chat-max-width",
+      "type": "FLOAT",
+      "values": { "Light": 720, "Dark": 720 },
+      "scoping": ["WIDTH_HEIGHT"]
+    },
+    {
+      "name": "spacing/chat-input-width",
+      "type": "FLOAT",
+      "values": { "Light": 752, "Dark": 752 },
+      "scoping": ["WIDTH_HEIGHT"]
+    },
+    {
+      "name": "spacing/sidebar-width-collapsed",
+      "type": "FLOAT",
+      "values": { "Light": 52, "Dark": 52 },
+      "scoping": ["WIDTH_HEIGHT"]
+    },
+    {
+      "name": "spacing/sidebar-icon-size",
+      "type": "FLOAT",
+      "values": { "Light": 20, "Dark": 20 },
+      "scoping": ["WIDTH_HEIGHT"]
+    },
+    {
+      "name": "spacing/sidebar-button-size",
+      "type": "FLOAT",
+      "values": { "Light": 36, "Dark": 36 },
+      "scoping": ["WIDTH_HEIGHT"]
+    },
+    {
+      "name": "spacing/sidebar-avatar-size",
+      "type": "FLOAT",
+      "values": { "Light": 28, "Dark": 28 },
+      "scoping": ["WIDTH_HEIGHT"]
+    }
+  ],
+  "_meta": {
+    "description": "Chat Organizer Design Tokens - Import into Figma using Variables Import plugin or Figma's bulk variable editor",
+    "source": "src/app/globals.css",
+    "fonts": {
+      "sans": "DM Sans (-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif)",
+      "serif": "Source Serif 4 (Georgia, serif)",
+      "mono": "JetBrains Mono (ui-monospace, Cascadia Code, monospace)"
+    },
+    "fontWeights": {
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "textSizes": {
+      "xs": "12px",
+      "sm": "14px",
+      "md": "16px",
+      "lg": "18px"
+    },
+    "headingSizes": {
+      "xs": "12px",
+      "sm": "14px",
+      "md": "16px",
+      "lg": "20px",
+      "xl": "24px",
+      "2xl": "28px",
+      "3xl": "36px"
+    }
+  }
+}
