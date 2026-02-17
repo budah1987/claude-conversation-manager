@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
 
-export type ToastType = 'save' | 'remove';
+export type ToastType = 'save' | 'remove' | 'note-added';
 
 export interface ToastConfig {
   type: ToastType;

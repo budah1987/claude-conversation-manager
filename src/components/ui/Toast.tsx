@@ -6,7 +6,7 @@ import { Check, X, RotateCcw, ArrowRight } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 
 export function Toast() {
-  const { toast, dismissToast, pauseTimer, resumeTimer } = useToast();
+  const { toast, showToast, dismissToast, pauseTimer, resumeTimer } = useToast();
   const [noteInput, setNoteInput] = useState('');
   const [showNoteInput, setShowNoteInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +34,11 @@ export function Toast() {
   const handleNoteSave = () => {
     if (toast.onAddNote && noteInput.trim()) {
       toast.onAddNote(noteInput.trim());
-      dismissToast();
+      showToast({
+        type: 'note-added',
+        message: 'Note added',
+        onView: toast.onView,
+      });
     }
   };
 
@@ -234,6 +238,55 @@ export function Toast() {
               >
                 Press Enter to save · Esc to skip
               </p>
+            </div>
+          )}
+
+          {/* ─── Note Added Toast ─── */}
+          {toast.type === 'note-added' && (
+            <div className="flex items-center gap-3 px-4 py-3">
+              {/* Check icon */}
+              <div
+                className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0"
+                style={{ backgroundColor: 'var(--toast-check-bg)' }}
+              >
+                <Check
+                  size={12}
+                  strokeWidth={3}
+                  style={{ color: 'var(--toast-check-color)' }}
+                />
+              </div>
+
+              {/* Text */}
+              <span
+                className="text-[14px] font-medium whitespace-nowrap"
+                style={{ color: 'var(--toast-text)' }}
+              >
+                Note added
+              </span>
+
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* View button */}
+              {toast.onView && (
+                <button
+                  onClick={() => {
+                    toast.onView?.();
+                    dismissToast();
+                  }}
+                  className="px-2.5 py-1 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap"
+                  style={{ color: 'var(--toast-accent)' }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      'color-mix(in srgb, var(--toast-accent) 10%, transparent)')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = 'transparent')
+                  }
+                >
+                  View
+                </button>
+              )}
             </div>
           )}
 
