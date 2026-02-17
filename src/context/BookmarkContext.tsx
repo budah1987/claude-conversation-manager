@@ -85,7 +85,7 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
 export function BookmarkProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(bookmarkReducer, {
     bookmarks: [],
-    pendingRemoval: new Set(),
+    pendingRemoval: new Set<string>(),
   });
 
   // Initialize from localStorage or seed data

@@ -33,7 +33,7 @@ export function Toast() {
 
   const handleNoteSave = () => {
     if (toast.onAddNote && noteInput.trim()) {
-      toast.onAddNote();
+      toast.onAddNote(noteInput.trim());
       dismissToast();
     }
   };

@@ -35,7 +35,7 @@ export default function SavedPage() {
     setIsSidebarOpen((prev) => !prev);
   }, []);
 
-  const handleConversationClick = useCallback((id: string) => {
+  const handleConversationClick = useCallback((id: string, _messageId?: string) => {
     router.push(`/conversation/${id}`);
   }, [router]);
 

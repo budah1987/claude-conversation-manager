@@ -7,7 +7,7 @@ export type ToastType = 'save' | 'remove';
 export interface ToastConfig {
   type: ToastType;
   message: string;
-  onAddNote?: () => void;
+  onAddNote?: (note: string) => void;
   onView?: () => void;
   onUndo?: () => void;
 }

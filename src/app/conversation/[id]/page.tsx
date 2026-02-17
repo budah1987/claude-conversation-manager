@@ -199,6 +199,7 @@ function ChatMessage({
     softRemoveBookmark,
     restoreBookmark,
     getBookmarkForMessage,
+    updateNote,
   } = useBookmarks();
   const { showToast } = useToast();
   const [showCheckboxPanel, setShowCheckboxPanel] = useState(false);
@@ -326,8 +327,8 @@ function ChatMessage({
     showToast({
       type: 'save',
       message: 'Saved',
-      onAddNote: () => {
-        // Note will be added via toast input
+      onAddNote: (note: string) => {
+        updateNote(bookmark.id, note);
       },
       onView: () => {
         window.location.href = '/saved';
@@ -471,7 +472,7 @@ export default function ConversationPage({
   }, []);
 
   const handleConversationClick = useCallback(
-    (convId: string) => {
+    (convId: string, _messageId?: string) => {
       router.push(`/conversation/${convId}`);
     },
     [router]
