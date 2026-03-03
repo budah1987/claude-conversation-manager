@@ -3,15 +3,25 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { ChatInputCentered } from '@/components/home/ChatInputCentered';
+import { StreamingResponse } from '@/components/home/StreamingResponse';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { useCommandK } from '@/hooks/useCommandK';
 import ClaudeThinkingIcon from '@/components/ui/ClaudeThinkingIcon';
+import { CONVERSATION_MESSAGES } from '@/data/messages';
 
 const DEMO_QUERY = 'What is react.js?';
 const TYPING_DELAY_MS = 1000;
 const CHAR_INTERVAL_MS = 60;
+const THINKING_DURATION_MS = 1800;
+
+type Phase = 'idle' | 'thinking' | 'streaming' | 'complete';
+
+// Get the assistant response from the demo data
+const demoMessages = CONVERSATION_MESSAGES['react-demo'];
+const DEMO_RESPONSE = demoMessages?.find((m) => m.role === 'assistant')?.content ?? '';
 
 export default function Home() {
   const router = useRouter();
@@ -23,6 +33,9 @@ export default function Home() {
   const [isTyping, setIsTyping] = useState(false);
   const [isTypingDone, setIsTypingDone] = useState(false);
   const charIndexRef = useRef(0);
+
+  // Post-send phase
+  const [phase, setPhase] = useState<Phase>('idle');
 
   // Auto-collapse sidebar below 1024px on initial load
   useEffect(() => {
@@ -61,6 +74,13 @@ export default function Home() {
     return () => clearTimeout(startTimeout);
   }, []);
 
+  // Thinking → streaming transition
+  useEffect(() => {
+    if (phase !== 'thinking') return;
+    const timer = setTimeout(() => setPhase('streaming'), THINKING_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [phase]);
+
   const openSearch = useCallback(() => setIsSearchOpen(true), []);
   const closeSearch = useCallback(() => setIsSearchOpen(false), []);
   useCommandK(openSearch, closeSearch);
@@ -74,10 +94,16 @@ export default function Home() {
   }, [router]);
 
   const handleSend = useCallback(() => {
-    if (isTypingDone) {
-      router.push('/conversation/react-demo');
+    if (isTypingDone && phase === 'idle') {
+      setPhase('thinking');
     }
-  }, [isTypingDone, router]);
+  }, [isTypingDone, phase]);
+
+  const handleStreamingComplete = useCallback(() => {
+    setPhase('complete');
+  }, []);
+
+  const hasSent = phase !== 'idle';
 
   return (
     <div className="flex h-screen w-full bg-[var(--surface-app)] overflow-hidden font-[family-name:var(--font-sans)]">
@@ -91,72 +117,146 @@ export default function Home() {
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto relative flex flex-col items-center justify-center px-4 sm:px-6">
-        <div className="w-full max-w-2xl flex flex-col items-center gap-8">
-          {/* Greeting */}
-          <h1
-            className="text-[28px] md:text-[32px] font-normal text-[var(--text-primary)] flex items-center gap-2"
-            style={{ fontFamily: 'var(--font-serif)' }}
-          >
-            <ClaudeThinkingIcon size={32} />
-            Evening, Amir
-          </h1>
-
-          {/* Centered chat input */}
-          <ChatInputCentered
-            value={typedText}
-            isTyping={isTyping}
-            onSend={handleSend}
-          />
-
-          {/* Quick action pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
-              aria-label="Write"
+      <main className="flex-1 overflow-y-auto relative flex flex-col px-4 sm:px-6">
+        <AnimatePresence mode="wait">
+          {!hasSent ? (
+            /* ── Pre-send: greeting + input + pills ── */
+            <motion.div
+              key="pre-send"
+              className="flex-1 flex flex-col items-center justify-center"
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.25 }}
             >
-              {/* TODO: Replace with proper SVG icon */}
-              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
-              Write
-            </button>
+              <div className="w-full max-w-2xl flex flex-col items-center gap-8">
+                {/* Greeting */}
+                <h1
+                  className="text-[28px] md:text-[32px] font-normal text-[var(--text-primary)] flex items-center gap-2"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
+                  <ClaudeThinkingIcon size={32} />
+                  Evening, Amir
+                </h1>
 
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
-              aria-label="Learn"
-            >
-              {/* TODO: Replace with proper SVG icon */}
-              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
-              Learn
-            </button>
+                {/* Centered chat input */}
+                <ChatInputCentered
+                  value={typedText}
+                  isTyping={isTyping}
+                  onSend={handleSend}
+                />
 
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
-              aria-label="From Drive"
-            >
-              {/* TODO: Replace with proper SVG icon */}
-              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
-              From Drive
-            </button>
+                {/* Quick action pills */}
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    aria-label="Write"
+                  >
+                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    Write
+                  </button>
 
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
-              aria-label="From Calendar"
-            >
-              {/* TODO: Replace with proper SVG icon */}
-              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
-              From Calendar
-            </button>
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    aria-label="Learn"
+                  >
+                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    Learn
+                  </button>
 
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
-              aria-label="From Gmail"
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    aria-label="From Drive"
+                  >
+                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    From Drive
+                  </button>
+
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    aria-label="From Calendar"
+                  >
+                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    From Calendar
+                  </button>
+
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    aria-label="From Gmail"
+                  >
+                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    From Gmail
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            /* ── Post-send: user bubble + thinking/response ── */
+            <motion.div
+              key="post-send"
+              className="flex-1 flex flex-col pt-12 pb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              {/* TODO: Replace with proper SVG icon */}
-              <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
-              From Gmail
-            </button>
-          </div>
-        </div>
+              <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+                {/* User message bubble */}
+                <div className="flex justify-end">
+                  <div
+                    className="px-4 py-3 rounded-2xl text-[15px] max-w-[80%]"
+                    style={{
+                      backgroundColor: 'var(--surface-user-bubble, var(--surface-card))',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {DEMO_QUERY}
+                  </div>
+                </div>
+
+                {/* Assistant response area */}
+                <div className="flex gap-3">
+                  {/* Claude icon */}
+                  <div className="flex-shrink-0 mt-1">
+                    <ClaudeThinkingIcon
+                      isThinking={phase === 'thinking'}
+                      size={24}
+                    />
+                  </div>
+
+                  {/* Response content */}
+                  <div className="flex-1 min-w-0">
+                    <AnimatePresence mode="wait">
+                      {phase === 'thinking' && (
+                        <motion.div
+                          key="thinking"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="text-[14px] text-[var(--text-tertiary)] pt-1"
+                        >
+                          Thinking…
+                        </motion.div>
+                      )}
+
+                      {(phase === 'streaming' || phase === 'complete') && (
+                        <motion.div
+                          key="response"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <StreamingResponse
+                            content={DEMO_RESPONSE}
+                            onComplete={handleStreamingComplete}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Search overlay */}
