@@ -11,12 +11,18 @@ export interface Conversation {
   messages?: Message[];
 }
 
+export interface SolutionOption {
+  label: string;
+  description: string;
+  fullContent?: string;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
-  solutions?: string[];
+  solutions?: SolutionOption[];
 }
 
 export type BookmarkVariant = 'single-text' | 'single-code' | 'multi-bookmark' | 'draft';

@@ -90,6 +90,17 @@ export function BookmarkProvider({ children }: { children: ReactNode }) {
 
   // Initialize from localStorage or seed data
   useEffect(() => {
+    const BOOKMARKS_VERSION = 'v3';
+    const storedVersion = localStorage.getItem('bookmarks_version');
+
+    if (storedVersion !== BOOKMARKS_VERSION) {
+      // Reset to seed data on version change
+      localStorage.removeItem('bookmarks');
+      localStorage.setItem('bookmarks_version', BOOKMARKS_VERSION);
+      dispatch({ type: 'INITIALIZE', payload: SEED_BOOKMARKS });
+      return;
+    }
+
     const stored = localStorage.getItem('bookmarks');
     if (stored) {
       try {

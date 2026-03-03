@@ -505,12 +505,13 @@ export function Sidebar({
             >
               {/* Header: Claude wordmark + toggle */}
               <div className="flex items-center justify-between px-3 pb-3">
-                <span
-                  className="text-[18px] font-semibold text-[var(--text-primary)]"
+                <button
+                  onClick={() => { localStorage.clear(); window.location.href = '/'; }}
+                  className="text-[18px] font-semibold text-[var(--text-primary)] hover:opacity-70 transition-opacity cursor-pointer"
                   style={{ fontFamily: 'var(--font-serif)' }}
                 >
                   Claude
-                </span>
+                </button>
                 <button
                   aria-label="Collapse sidebar"
                   onClick={onToggle}
@@ -580,12 +581,13 @@ export function Sidebar({
             >
               {/* Header */}
               <div className="flex items-center justify-between px-3 pb-3">
-                <span
-                  className="text-[18px] font-semibold text-[var(--text-primary)]"
+                <button
+                  onClick={() => { localStorage.clear(); window.location.href = '/'; }}
+                  className="text-[18px] font-semibold text-[var(--text-primary)] hover:opacity-70 transition-opacity cursor-pointer"
                   style={{ fontFamily: 'var(--font-serif)' }}
                 >
                   Claude
-                </span>
+                </button>
                 <button
                   aria-label="Close sidebar"
                   onClick={onClose}

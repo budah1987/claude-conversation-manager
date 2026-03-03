@@ -231,15 +231,6 @@ export const ALL_CONVERSATIONS: Conversation[] = [
     project: 'Job Search',
   },
 
-  // === DEMO ===
-  {
-    id: 'react-demo',
-    title: 'What is react.js?',
-    preview: 'React is a JavaScript library for building user interfaces, primarily for web applications. It was developed by Meta and is maintained by a community of developers...',
-    timestamp: '2026-02-14T12:00:00Z',
-    project: 'Learning',
-  },
-
   // === LEARNING (3 conversations) ===
   {
     id: 'l1',

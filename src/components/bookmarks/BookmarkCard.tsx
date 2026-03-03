@@ -6,7 +6,7 @@ import { Bookmark as BookmarkType } from '@/types';
 import { useBookmarks } from '@/context/BookmarkContext';
 import { useToast } from '@/context/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bookmark as BookmarkIcon, ChevronDown, Trash2, Copy, Mail, Check, Lightbulb } from 'lucide-react';
+import { Bookmark as BookmarkIcon, ChevronDown, Trash2, Copy, Mail, Check, Lightbulb, ArrowRight } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { parseMessageContent, getLineColor, countLines } from '@/lib/codeBlockUtils';
 
@@ -369,6 +369,7 @@ interface NoteSectionProps {
 }
 
 function NoteSection({ bookmarkId, currentNote, onNoteUpdate }: NoteSectionProps) {
+  const { showToast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [noteInput, setNoteInput] = useState(currentNote || '');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -381,6 +382,8 @@ function NoteSection({ bookmarkId, currentNote, onNoteUpdate }: NoteSectionProps
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [noteInput, isExpanded]);
+
+  const hasChanges = noteInput.trim() !== (currentNote || '');
 
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
@@ -402,6 +405,12 @@ function NoteSection({ bookmarkId, currentNote, onNoteUpdate }: NoteSectionProps
     const trimmed = noteInput.trim();
     if (trimmed !== currentNote) {
       onNoteUpdate(bookmarkId, trimmed);
+      if (trimmed) {
+        showToast({
+          type: 'note-added',
+          message: 'Note saved',
+        });
+      }
     }
   };
 
@@ -488,35 +497,76 @@ function NoteSection({ bookmarkId, currentNote, onNoteUpdate }: NoteSectionProps
                 </span>
               </div>
 
-              {/* Always-visible textarea */}
-              <textarea
-                ref={textareaRef}
-                value={noteInput}
-                onChange={(e) => setNoteInput(e.target.value)}
-                onBlur={handleNoteSave}
-                onKeyDown={handleKeyDown}
-                placeholder="Add note"
+              {/* Form field with inline save button */}
+              <div
                 style={{
+                  position: 'relative',
                   width: '100%',
-                  minHeight: '40px',
-                  maxHeight: '200px',
-                  padding: '4px',
-                  backgroundColor: 'transparent',
-                  border: '1px solid transparent',
-                  borderRadius: '4px',
-                  outline: 'none',
-                  resize: 'none',
-                  color: 'var(--note-text)',
-                  fontSize: '13px',
-                  fontFamily: 'var(--font-sans)',
-                  lineHeight: '20.1px',
-                  transition: 'border-color 0.2s ease',
-                  overflow: 'auto',
+                  backgroundColor: 'var(--background)',
+                  border: '1px solid var(--note-border)',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
                 }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(234, 179, 8, 0.5)';
-                }}
-              />
+              >
+                <textarea
+                  ref={textareaRef}
+                  value={noteInput}
+                  onChange={(e) => setNoteInput(e.target.value)}
+                  onBlur={handleNoteSave}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Add note"
+                  style={{
+                    width: '100%',
+                    minHeight: '40px',
+                    maxHeight: '200px',
+                    padding: '8px 12px',
+                    paddingRight: hasChanges ? '44px' : '12px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    color: 'var(--note-text)',
+                    fontSize: '13px',
+                    fontFamily: 'var(--font-sans)',
+                    lineHeight: '20.1px',
+                    overflow: 'auto',
+                    boxSizing: 'border-box',
+                  }}
+                />
+
+                <AnimatePresence>
+                  {hasChanges && (
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.15 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNoteSave();
+                        textareaRef.current?.blur();
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '6px',
+                        bottom: '6px',
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        backgroundColor: '#B8602A',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 0,
+                      }}
+                    >
+                      <ArrowRight size={14} strokeWidth={2.5} style={{ color: '#FFFFFF' }} />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </div>
 
               {currentNote && !showDeleteConfirm && (
                 <button
@@ -631,6 +681,16 @@ function Footer({ date, project, savedCount, isDraft }: FooterProps) {
                 backgroundColor: 'var(--query-bg)',
                 border: '1px solid var(--query-border)',
                 borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'background-color 0.15s ease, border-color 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--query-border)';
+                e.currentTarget.style.borderColor = 'rgba(115, 114, 108, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--query-bg)';
+                e.currentTarget.style.borderColor = 'var(--query-border)';
               }}
             >
               <span style={{ fontSize: '11px', fontFamily: 'var(--font-sans)', fontWeight: 500, color: 'rgba(115, 114, 108, 1)' }}>
@@ -1003,17 +1063,67 @@ function MultiBookmarkVariant({ bookmark }: { bookmark: BookmarkType }) {
 
             {isExpanded && (
               <div style={{ padding: '12px 8px 14px' }}>
-                <p
-                  style={{
-                    margin: 0,
-                    color: 'var(--text-primary)',
-                    fontSize: '14px',
-                    fontFamily: 'var(--font-serif)',
-                    lineHeight: '23.8px',
-                  }}
-                >
-                  {option.content}
-                </p>
+                {(() => {
+                  const parts = parseMessageContent(option.content);
+                  const hasCode = parts.some((p) => p.type === 'code');
+                  if (hasCode) {
+                    return (
+                      <div
+                        style={{
+                          color: 'var(--text-primary)',
+                          fontSize: '14px',
+                          fontFamily: 'var(--font-serif)',
+                          lineHeight: '23.8px',
+                        }}
+                      >
+                        {parts.map((part, pi) =>
+                          part.type === 'code' ? (
+                            <pre
+                              key={pi}
+                              style={{
+                                margin: '8px 0',
+                                padding: '12px',
+                                borderRadius: '8px',
+                                backgroundColor: 'var(--code-bg)',
+                                fontFamily: 'var(--font-mono)',
+                                fontSize: '12px',
+                                lineHeight: '1.5',
+                                overflowX: 'auto',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                              }}
+                            >
+                              <code>
+                                {part.content.split('\n').map((line, li) => (
+                                  <div key={li} style={{ color: getLineColor(line) }}>
+                                    {line || ' '}
+                                  </div>
+                                ))}
+                              </code>
+                            </pre>
+                          ) : (
+                            <p key={pi} style={{ margin: pi > 0 ? '8px 0 0' : 0 }}>
+                              {part.content}
+                            </p>
+                          )
+                        )}
+                      </div>
+                    );
+                  }
+                  return (
+                    <p
+                      style={{
+                        margin: 0,
+                        color: 'var(--text-primary)',
+                        fontSize: '14px',
+                        fontFamily: 'var(--font-serif)',
+                        lineHeight: '23.8px',
+                      }}
+                    >
+                      {option.content}
+                    </p>
+                  );
+                })()}
               </div>
             )}
           </div>

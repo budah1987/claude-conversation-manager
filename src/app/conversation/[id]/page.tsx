@@ -214,6 +214,7 @@ function ChatMessage({
   if (isUser) {
     return (
       <motion.div
+        id={message.id}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut', delay: index * 0.03 }}
@@ -312,13 +313,19 @@ function ChatMessage({
         codeLanguage: codeBlockData.language,
       } : {}),
 
-      // Existing solution handling
+      // Multi-option bookmark: build options array for BookmarkCard
       ...(hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length > 1 ? {
-        selectedOptions: selectedSolutionIndices.map((i) => message.solutions![i]),
-        unselectedOptions: message.solutions!.filter((_, i) => !selectedSolutionIndices.includes(i)),
+        options: message.solutions!.map((s, i) => ({
+          id: String(i + 1),
+          label: `OPTION ${i + 1}`,
+          title: s.label,
+          content: s.fullContent || s.description,
+          isSaved: selectedSolutionIndices.includes(i),
+        })),
       } : {}),
+      // Single-option bookmark
       ...(hasSolutions && selectedSolutionIndices && selectedSolutionIndices.length === 1 ? {
-        optionLabel: `OPTION ${String.fromCharCode(65 + selectedSolutionIndices[0])}`,
+        optionLabel: `OPTION ${selectedSolutionIndices[0] + 1}`,
         totalOptions: message.solutions!.length,
       } : {}),
     };
@@ -346,6 +353,7 @@ function ChatMessage({
 
   return (
     <motion.div
+      id={message.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut', delay: index * 0.03 }}
@@ -398,6 +406,7 @@ function ChatMessage({
               <TextBlock key={i} text={part.content} />
             )
           )}
+
         </div>
 
         {/* Action row */}
@@ -450,6 +459,28 @@ export default function ConversationPage({
     [id]
   );
   const messages = CONVERSATION_MESSAGES[id] ?? [];
+
+  // Scroll to message if URL has hash (e.g. from bookmark "View full conversation")
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash || messages.length === 0) return;
+    // Delay to allow messages to render and animate in
+    const timer = setTimeout(() => {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Brief highlight
+        el.style.transition = 'outline-color 0.3s ease';
+        el.style.outline = '2px solid var(--accent-primary)';
+        el.style.outlineOffset = '4px';
+        el.style.borderRadius = '12px';
+        setTimeout(() => {
+          el.style.outlineColor = 'transparent';
+        }, 1500);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [messages.length]);
 
   // Auto-collapse sidebar below 1024px
   useEffect(() => {

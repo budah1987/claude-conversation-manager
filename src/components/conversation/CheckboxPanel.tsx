@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import type { SolutionOption } from '@/types';
 
 interface CheckboxPanelProps {
-  solutions: string[];
+  solutions: SolutionOption[];
   onSave: (selectedIndices: number[]) => void;
   onCancel: () => void;
 }
@@ -15,6 +16,7 @@ export function CheckboxPanel({
   onCancel,
 }: CheckboxPanelProps) {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const handleToggle = (index: number) => {
     setSelectedIndices((prev) =>
@@ -43,22 +45,40 @@ export function CheckboxPanel({
       </p>
 
       <div className="flex flex-col gap-2 mb-4">
-        {solutions.map((solution, index) => (
-          <label
-            key={index}
-            className="flex items-start gap-3 cursor-pointer group"
-          >
-            <input
-              type="checkbox"
-              checked={selectedIndices.includes(index)}
-              onChange={() => handleToggle(index)}
-              className="mt-0.5 w-4 h-4 shrink-0 cursor-pointer accent-[var(--accent-primary)]"
-            />
-            <span className="text-[14px] text-[var(--text-primary)] leading-[1.5] flex-1">
-              {solution}
-            </span>
-          </label>
-        ))}
+        {solutions.map((solution, index) => {
+          const isSelected = selectedIndices.includes(index);
+          return (
+            <label
+              key={index}
+              className="flex items-start gap-3 cursor-pointer rounded-lg px-3 py-2.5 transition-all duration-150"
+              style={{
+                backgroundColor: isSelected
+                  ? 'color-mix(in srgb, var(--accent-primary) 8%, transparent)'
+                  : hoveredIndex === index
+                    ? 'color-mix(in srgb, var(--text-primary) 3%, transparent)'
+                    : 'transparent',
+                border: `1px solid ${isSelected ? 'var(--accent-primary)' : hoveredIndex === index ? 'var(--border-secondary)' : 'var(--border-tertiary)'}`,
+              }}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => handleToggle(index)}
+                className="mt-0.5 w-4 h-4 shrink-0 cursor-pointer accent-[var(--accent-primary)]"
+              />
+              <div className="flex-1 min-w-0">
+                <span className="text-[14px] font-medium text-[var(--text-primary)] leading-[1.4]">
+                  {index + 1}. {solution.label}
+                </span>
+                <p className="text-[12.5px] text-[var(--text-tertiary)] leading-[1.4] mt-0.5">
+                  {solution.description}
+                </p>
+              </div>
+            </label>
+          );
+        })}
       </div>
 
       <div className="flex items-center gap-2 justify-end">
@@ -73,7 +93,7 @@ export function CheckboxPanel({
           disabled={selectedIndices.length === 0}
           className="px-4 py-2 rounded-lg text-[13px] font-medium bg-[var(--accent-primary)] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
         >
-          Save
+          Save{selectedIndices.length > 0 && ` (${selectedIndices.length})`}
         </button>
       </div>
     </motion.div>
