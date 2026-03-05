@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ALL_CONVERSATIONS } from '@/data/conversations';
+import { useDemoSession } from '@/context/DemoSessionContext';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { useTheme } from '@/hooks/useTheme';
 import { Sun, Moon } from 'lucide-react';
@@ -178,6 +179,7 @@ function ExpandedContent({
   onConversationClick,
   activeConversationId,
 }: SidebarContentProps) {
+  const { demoConversation } = useDemoSession();
   const router = useRouter();
   const pathname = usePathname();
   const isNewChatActive = false; // Demo route temporarily disabled
@@ -198,6 +200,18 @@ function ExpandedContent({
       .slice(0, 8),
     []
   );
+
+  // Prepend demo conversation if active, keep total at 8
+  const displayedRecents = useMemo(() => {
+    if (!demoConversation) return recentConversations;
+    const demoEntry = {
+      id: demoConversation.id,
+      title: demoConversation.title,
+      preview: '',
+      timestamp: new Date().toISOString(),
+    };
+    return [demoEntry, ...recentConversations.slice(0, 7)];
+  }, [demoConversation, recentConversations]);
 
   const handleClick = (callback?: () => void) => {
     onNavigate?.();
@@ -271,11 +285,11 @@ function ExpandedContent({
         )}
 
         {/* Recent conversations */}
-        {recentConversations.length > 0 && (
+        {displayedRecents.length > 0 && (
           <div className="flex-shrink-0">
             <SectionLabel>Recents</SectionLabel>
             <div className="flex flex-col gap-0.5">
-              {recentConversations.map((conv) => (
+              {displayedRecents.map((conv) => (
                 <ConversationItem
                   key={conv.id}
                   title={conv.title}

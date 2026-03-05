@@ -26,7 +26,7 @@ import { ActionRow } from '@/components/conversation/ActionRow';
 import { CheckboxPanel } from '@/components/conversation/CheckboxPanel';
 import { BookmarkIndicator } from '@/components/conversation/BookmarkIndicator';
 import type { Message } from '@/types';
-import { parseMessageContent, getLineColor, hasCodeBlocks, extractFirstCodeBlock } from '@/lib/codeBlockUtils';
+import { parseMessageContent, getLineColor, hasCodeBlocks, extractFirstCodeBlock, countLines } from '@/lib/codeBlockUtils';
 
 // --- Code block parser (now imported from @/lib/codeBlockUtils) ---
 
@@ -83,24 +83,135 @@ function TextBlock({ text }: { text: string }) {
   );
 }
 
-// --- Code block renderer ---
-function CodeBlock({ code }: { code: string }) {
+// --- Code block renderer (expandable, matches bookmark card) ---
+function CodeBlock({ code, language }: { code: string; language?: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+  const [showExpandButton, setShowExpandButton] = useState(true);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const lastScrollTopRef = useRef(0);
+  const rafRef = useRef<number>(0);
+
+  const lineCount = countLines(code);
+  const shouldShowExpand = lineCount > 20;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (indicatorRef.current) {
+        const progress = scrollTop / (scrollHeight - clientHeight);
+        indicatorRef.current.style.top = `${progress * 100}%`;
+        indicatorRef.current.style.opacity = progress > 0.01 ? '1' : '0.3';
+      }
+    });
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+    setIsScrolledToBottom(isAtBottom);
+    if (scrollTop > lastScrollTopRef.current && scrollTop > 10) {
+      setShowExpandButton(false);
+    } else if (scrollTop < lastScrollTopRef.current) {
+      setShowExpandButton(true);
+    }
+    lastScrollTopRef.current = scrollTop;
+  };
+
   return (
-    <pre
-      className="my-3 rounded-lg p-4 overflow-x-auto text-[13px] leading-relaxed whitespace-pre-wrap break-words"
-      style={{
-        backgroundColor: 'var(--code-bg)',
-        fontFamily: 'var(--font-mono)',
-      }}
-    >
-      <code>
-        {code.split('\n').map((line, i) => (
-          <div key={i} style={{ color: getLineColor(line) }}>
-            {line || ' '}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginTop: '12px', marginBottom: '4px' }}>
+      <div style={{ backgroundColor: 'var(--code-bg)', borderRadius: '6px', overflow: 'hidden', position: 'relative' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '12px', fontFamily: 'var(--font-sans)', color: 'var(--code-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              {language || 'code'}
+            </span>
+            {shouldShowExpand && (
+              <>
+                <span style={{ color: '#637777', fontSize: '12px' }}>•</span>
+                <span style={{ fontSize: '12px', fontFamily: 'var(--font-sans)', color: 'var(--code-text-muted)', letterSpacing: '0.5px' }}>
+                  {lineCount} LINES
+                </span>
+              </>
+            )}
           </div>
-        ))}
-      </code>
-    </pre>
+          <button
+            onClick={handleCopy}
+            style={{ padding: '4px 10px', fontSize: '11px', fontFamily: 'var(--font-sans)', color: copied ? '#4ade80' : 'var(--code-text)', backgroundColor: 'var(--code-button-bg)', border: '1px solid var(--code-border)', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
+            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.backgroundColor = 'var(--code-button-hover-bg)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--code-button-bg)'; }}
+          >
+            {copied ? (
+              <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>Copied!</>
+            ) : (
+              <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>Copy</>
+            )}
+          </button>
+        </div>
+
+        {/* Code content */}
+        <div
+          onScroll={handleScroll}
+          className="scrollbar-none"
+          style={{ padding: '12px 14px', fontFamily: 'var(--font-mono)', fontSize: '12px', lineHeight: '19.2px', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', overflowX: 'auto', maxHeight: isExpanded ? 'none' : '400px', overflowY: isExpanded ? 'visible' : 'auto', position: 'relative' }}
+        >
+          {code.split('\n').map((line, i) => (
+            <div key={i} style={{ color: getLineColor(line) }}>{line || ' '}</div>
+          ))}
+        </div>
+
+        {/* Bottom gradient fade */}
+        {!isExpanded && shouldShowExpand && !isScrolledToBottom && (
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px', background: 'linear-gradient(to bottom, transparent, var(--code-bg))', pointerEvents: 'none' }} />
+        )}
+
+        {/* Scroll progress indicator */}
+        {!isExpanded && shouldShowExpand && (
+          <div style={{ position: 'absolute', top: '47px', right: '2px', width: '3px', height: 'calc(100% - 47px)', pointerEvents: 'none' }}>
+            <div ref={indicatorRef} style={{ position: 'absolute', top: '0%', width: '100%', height: '30%', backgroundColor: 'rgba(198,97,63,0.6)', borderRadius: '2px', opacity: 0.3, willChange: 'top' }} />
+          </div>
+        )}
+
+        {/* Show all button */}
+        {!isExpanded && shouldShowExpand && (
+          <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', transition: 'opacity 0.3s ease-in-out', opacity: showExpandButton ? 1 : 0, pointerEvents: showExpandButton ? 'auto' : 'none', zIndex: 10 }}>
+            <button
+              onClick={() => setIsExpanded(true)}
+              style={{ padding: '6px 12px', fontSize: '11px', fontFamily: 'var(--font-sans)', color: 'var(--code-text)', backgroundColor: 'var(--code-expand-bg)', border: '1px solid var(--code-border)', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--code-expand-hover-bg)'; e.currentTarget.style.borderColor = 'var(--code-border-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--code-expand-bg)'; e.currentTarget.style.borderColor = 'var(--code-border)'; }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+              Show all {lineCount} lines
+            </button>
+          </div>
+        )}
+
+        {/* Show less button */}
+        {isExpanded && shouldShowExpand && (
+          <div style={{ padding: '12px 14px', display: 'flex', justifyContent: 'center' }}>
+            <button
+              onClick={() => setIsExpanded(false)}
+              style={{ padding: '6px 12px', fontSize: '11px', fontFamily: 'var(--font-sans)', color: '#c2c0b2', backgroundColor: 'rgba(30,30,29,0.95)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--code-expand-hover-bg)'; e.currentTarget.style.borderColor = 'var(--code-border-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--code-expand-bg)'; e.currentTarget.style.borderColor = 'var(--code-border)'; }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: 'rotate(180deg)' }}><polyline points="6 9 12 15 18 9" /></svg>
+              Show less
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -401,7 +512,7 @@ function ChatMessage({
         >
           {parts.map((part, i) =>
             part.type === 'code' ? (
-              <CodeBlock key={i} code={part.content} />
+              <CodeBlock key={i} code={part.content} language={part.language} />
             ) : (
               <TextBlock key={i} text={part.content} />
             )

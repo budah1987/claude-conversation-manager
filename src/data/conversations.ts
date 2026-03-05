@@ -78,8 +78,8 @@ export const ALL_CONVERSATIONS: Conversation[] = [
   },
   {
     id: 'c12',
-    title: 'Custom ESLint rule for import order',
-    preview: 'Here is an ESLint plugin config that enforces your preferred import grouping: external packages first, then internal aliases, then relative imports, each separated by a blank line...',
+    title: 'Content strategy for Q1 blog',
+    preview: 'Focus on educational content that addresses your users pain points. Start with foundational how-to guides in January, then intermediate integrations in February, advanced performance topics in March...',
     timestamp: '2026-01-05T12:00:00Z',
   },
 
@@ -137,6 +137,13 @@ export const ALL_CONVERSATIONS: Conversation[] = [
     preview: 'Reference the specific technical discussion you had about their edge caching architecture. Reiterate your interest and mention the follow-up idea you discussed...',
     timestamp: '2026-01-09T10:15:00Z',
     project: 'Job Search',
+  },
+  {
+    id: 'c15',
+    title: 'Email to design team about new component library',
+    preview: 'Here is a draft announcement email for the design team. I have kept the tone professional but approachable, with a clear summary of what is changing and why...',
+    timestamp: '2026-01-30T10:00:00Z',
+    project: 'Design System',
   },
 
   // === RESEARCH (5 conversations) ===
@@ -204,6 +211,13 @@ export const ALL_CONVERSATIONS: Conversation[] = [
     preview: 'Your warning state fails WCAG AA on the light background. The amber text needs to darken to at least #6B4D1A to hit 4.5:1 contrast ratio against white. Here are the adjusted values...',
     timestamp: '2026-01-10T09:00:00Z',
     project: 'Design System',
+  },
+  {
+    id: 'c20',
+    title: 'Dashboard layout redesign feedback',
+    preview: 'For analytics dashboards, sidebar navigation usually wins when users have 5+ sections to switch between. Here is a breakdown of the trade-offs and best practices for implementation...',
+    timestamp: '2026-02-01T14:00:00Z',
+    project: 'Product',
   },
 
   // === PLANNING (3 conversations) ===

@@ -3,6 +3,7 @@ import { DM_Sans, Source_Serif_4, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { BookmarkProvider } from '@/context/BookmarkContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { DemoSessionProvider } from '@/context/DemoSessionContext';
 import { Toast } from '@/components/ui/Toast';
 
 const dmSans = DM_Sans({
@@ -59,12 +60,14 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <BookmarkProvider>
-          <ToastProvider>
-            {children}
-            <Toast />
-          </ToastProvider>
-        </BookmarkProvider>
+        <DemoSessionProvider>
+          <BookmarkProvider>
+            <ToastProvider>
+              {children}
+              <Toast />
+            </ToastProvider>
+          </BookmarkProvider>
+        </DemoSessionProvider>
       </body>
     </html>
   );
