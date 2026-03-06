@@ -5,17 +5,12 @@ import { useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   Plus,
-  Search,
-  MessageSquare,
-  FolderClosed,
-  Settings,
   Bookmark,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ALL_CONVERSATIONS } from '@/data/conversations';
 import { useDemoSession } from '@/context/DemoSessionContext';
-import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { useTheme } from '@/hooks/useTheme';
 import { Sun, Moon } from 'lucide-react';
 
@@ -36,48 +31,87 @@ function SidebarToggleIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-// --- Artifacts icon ---
-function ArtifactsIcon({ size = 20 }: { size?: number }) {
+// --- Claude.ai Search icon ---
+function SearchIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 20 20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="6" cy="6" r="2.5" />
-      <circle cx="14" cy="6" r="2.5" />
-      <circle cx="6" cy="14" r="2.5" />
-      <circle cx="14" cy="14" r="2.5" />
-      <line x1="8.5" y1="6" x2="11.5" y2="6" />
-      <line x1="6" y1="8.5" x2="6" y2="11.5" />
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* 16×16 icon centered in 20×20 frame (2px inset each side) */}
+      <g transform="translate(2, 2)">
+        <path
+          fillRule="nonzero"
+          fill="currentColor"
+          d="M 6.5 0 C 10.09 0 13 2.91 13 6.5 C 13 8.115 12.409 9.591 11.435 10.728 L 15.854 15.146 L 15.918 15.225 C 16.046 15.419 16.024 15.683 15.854 15.854 C 15.683 16.024 15.419 16.046 15.225 15.918 L 15.146 15.854 L 10.728 11.435 C 9.591 12.409 8.115 13 6.5 13 C 2.91 13 0 10.09 0 6.5 C 0 2.91 2.91 0 6.5 0 Z M 6.5 1 C 3.462 1 1 3.462 1 6.5 C 1 9.538 3.462 12 6.5 12 C 9.538 12 12 9.538 12 6.5 C 12 3.462 9.538 1 6.5 1 Z"
+        />
+      </g>
     </svg>
   );
 }
 
-// --- Code icon (</> style) ---
-function CodeIcon({ size = 20 }: { size?: number }) {
+// --- Claude.ai Chats icon ---
+function ChatsIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 20 20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="6 6 2 10 6 14" />
-      <polyline points="14 6 18 10 14 14" />
-      <line x1="11" y1="4" x2="9" y2="16" />
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(2, 2)">
+        <path
+          fillRule="evenodd"
+          fill="currentColor"
+          d="M 7 0 C 10.313 0 13 2.686 13 6 C 13 9.314 10.313 12 7 12 L 0.5 12 C 0.301 12 0.121 11.882 0.042 11.7 C -0.038 11.518 -0.002 11.306 0.133 11.16 L 1.935 9.218 C 1.343 8.288 1 7.183 1 6 C 1 2.686 3.686 0 7 0 Z M 7 1 C 4.238 1 2 3.239 2 6 C 2 7.112 2.363 8.139 2.976 8.969 C 3.119 9.162 3.103 9.429 2.94 9.605 L 1.645 11 L 7 11 C 9.761 11 12 8.761 12 6 C 12 3.239 9.761 1 7 1 Z"
+        />
+        <path
+          fill="currentColor"
+          d="M 13.943 7.534 C 14.168 7.447 14.418 7.533 14.544 7.728 L 14.684 8.074 C 14.889 8.679 15 9.327 15 10 C 15 11.184 14.655 12.288 14.063 13.218 L 15.867 15.16 C 16.002 15.306 16.038 15.518 15.959 15.7 C 15.879 15.882 15.699 16 15.5 16 L 9 16 C 7.254 16 5.68 15.253 4.585 14.063 L 4.316 13.734 C 4.207 13.529 4.253 13.268 4.439 13.114 C 4.625 12.961 4.89 12.965 5.071 13.11 L 5.321 13.385 C 6.235 14.378 7.545 15 9 15 L 14.353 15 L 13.059 13.606 C 12.896 13.43 12.881 13.162 13.024 12.969 C 13.638 12.139 14 11.112 14 10 C 14 9.438 13.907 8.899 13.737 8.396 L 13.632 8.084 C 13.593 7.855 13.718 7.622 13.943 7.534 Z"
+        />
+      </g>
     </svg>
   );
 }
+
+// --- Claude.ai Projects icon ---
+function ProjectsIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* 14×14 icon, offset to center in 20×20: x=3, y=3 */}
+      <g transform="translate(2.68, 3)">
+        <path
+          fillRule="evenodd"
+          fill="currentColor"
+          d="M 13.139 4 C 14.008 4 14.682 4.732 14.637 5.576 L 14.618 5.747 L 13.452 12.747 C 13.332 13.47 12.706 14 11.973 14 L 2.666 14 C 1.933 14 1.308 13.47 1.187 12.747 L 0.021 5.747 C -0.132 4.833 0.573 4 1.5 4 L 13.139 4 Z M 1.5 5 C 1.191 5 0.956 5.277 1.007 5.582 L 2.173 12.582 C 2.213 12.823 2.422 13 2.666 13 L 11.973 13 C 12.217 13 12.426 12.823 12.466 12.582 L 13.632 5.582 L 13.638 5.47 C 13.623 5.213 13.409 5 13.139 5 L 1.5 5 Z"
+        />
+        <path
+          fillRule="nonzero"
+          fill="currentColor"
+          d="M 12.82 2 C 13.095 2 13.32 2.224 13.32 2.5 C 13.32 2.776 13.095 3 12.82 3 L 1.82 3 C 1.543 3 1.32 2.776 1.32 2.5 C 1.32 2.224 1.543 2 1.82 2 L 12.82 2 Z"
+        />
+        <path
+          fillRule="nonzero"
+          fill="currentColor"
+          d="M 11.32 0 C 11.595 0 11.82 0.224 11.82 0.5 C 11.82 0.776 11.595 1 11.32 1 L 3.32 1 C 3.043 1 2.82 0.776 2.82 0.5 C 2.82 0.224 3.043 0 3.32 0 L 11.32 0 Z"
+        />
+      </g>
+    </svg>
+  );
+}
+
+// --- Claude.ai Artifacts icon ---
+// 2×2 grid: diamond (top-left), hourglass (top-right), 6-pt star (bottom-left), circle (bottom-right)
+// Geometry from Figma node 185:157 (24px canvas, content inset ~2px)
+function ArtifactsIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Top-left: diamond — square rotated 45°, center (7.5, 6.25), half-width ~3.2 */}
+      <path fill="currentColor" d="M 7.5 2.75 L 10.7 5.95 L 7.5 9.15 L 4.3 5.95 Z M 7.5 4.15 L 5.7 5.95 L 7.5 7.75 L 9.3 5.95 Z" />
+      {/* Top-right: hourglass — pos (14.5,2.75) size (6.95×7), centered x~18 y~6.25 */}
+      <path fill="currentColor" d="M 14.5 2.75 L 21.45 2.75 L 18.975 6.25 L 21.45 9.75 L 14.5 9.75 L 16.975 6.25 Z M 16.05 3.75 L 17.975 6.25 L 16.05 8.75 L 19.9 8.75 L 18.025 6.25 L 19.9 3.75 Z" />
+      {/* Bottom-left: 6-pointed star — center (6.75, 17.75), r_outer=3.5, r_inner=1.75 */}
+      <path fill="currentColor" d="M 6.75 14.25 L 7.87 16.19 L 10.1 16.19 L 8.98 18.12 L 10.1 20.06 L 7.87 20.06 L 6.75 22 L 5.63 20.06 L 3.4 20.06 L 4.52 18.12 L 3.4 16.19 L 5.63 16.19 Z M 6.75 15.83 L 5.97 17.19 L 4.42 17.19 L 5.19 18.56 L 4.42 19.92 L 5.97 19.92 L 6.75 21.28 L 7.53 19.92 L 9.08 19.92 L 8.31 18.56 L 9.08 17.19 L 7.53 17.19 Z" />
+      {/* Bottom-right: circle outline — center (17.75, 17.75) r=3.5 */}
+      <path fill="currentColor" d="M 17.75 14.25 C 19.683 14.25 21.25 15.817 21.25 17.75 C 21.25 19.683 19.683 21.25 17.75 21.25 C 15.817 21.25 14.25 19.683 14.25 17.75 C 14.25 15.817 15.817 14.25 17.75 14.25 Z M 17.75 15.25 C 16.369 15.25 15.25 16.369 15.25 17.75 C 15.25 19.131 16.369 20.25 17.75 20.25 C 19.131 20.25 20.25 19.131 20.25 17.75 C 20.25 16.369 19.131 15.25 17.75 15.25 Z" />
+      {/* Bottom-right: circle outline — center (17.75, 17.75) r=3.5 */}
+      <path fill="currentColor" d="M 17.75 14.25 C 19.821 14.25 21.5 15.929 21.5 17.75 C 21.5 19.571 19.821 21.25 17.75 21.25 C 15.679 21.25 14 19.571 14 17.75 C 14 15.929 15.679 14.25 17.75 14.25 Z M 17.75 15.25 C 16.231 15.25 15 16.481 15 17.75 C 15 19.019 16.231 20.25 17.75 20.25 C 19.269 20.25 20.5 19.019 20.5 17.75 C 20.5 16.481 19.269 15.25 17.75 15.25 Z" />
+    </svg>
+  );
+}
+
 
 // --- Nav item (expanded) ---
 interface NavItemProps {
@@ -96,7 +130,7 @@ function NavItem({ icon, label, active = false, onClick }: NavItemProps) {
         'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors',
         active
           ? 'bg-[var(--sidebar-button-active-bg)] text-[var(--text-primary)]'
-          : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]'
+          : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
       )}
     >
       <span className="shrink-0">{icon}</span>
@@ -143,13 +177,13 @@ function ConversationItem({
     <button
       onClick={onClick}
       className={cn(
-        'w-full px-3 py-2 rounded-lg text-left transition-colors group',
+        'w-full px-3 py-1 rounded-lg text-left transition-colors group',
         active
           ? 'bg-[var(--sidebar-button-active-bg)]'
           : 'hover:bg-[var(--surface-hover)]'
       )}
     >
-      <span className="text-[13px] text-[var(--text-primary)] transition-colors truncate block">
+      <span className="text-[14px] text-[var(--text-secondary)] transition-colors truncate block">
         {title}
       </span>
     </button>
@@ -159,9 +193,68 @@ function ConversationItem({
 // --- Section label ---
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-3 pt-4 pb-1.5 text-[12px] font-semibold uppercase tracking-[0.05em] text-[var(--text-tertiary)]">
+    <p className="px-3 pt-4 pb-1 text-[12px] font-medium text-[var(--text-tertiary)]">
       {children}
     </p>
+  );
+}
+
+// --- Profile row with inline theme toggle ---
+function ProfileRow() {
+  const { theme, mounted, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <div className="flex items-center gap-3 -mx-3 px-3 pt-2 pb-3 hover:bg-[var(--surface-hover)] transition-colors cursor-pointer">
+      {/* Avatar — larger, neutral dark circle */}
+      <div className="w-10 h-10 rounded-full bg-[#4A4845] shrink-0 flex items-center justify-center text-[15px] font-semibold text-white">
+        A
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="text-[14px] font-semibold text-[var(--text-primary)] truncate block">
+          Amir
+        </span>
+        <span className="text-[12px] text-[var(--text-tertiary)] truncate block">
+          Max plan
+        </span>
+      </div>
+      {/* Theme toggle — bordered pill button */}
+      <button
+        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
+        className="w-9 h-9 flex items-center justify-center rounded-lg border border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shrink-0"
+      >
+        {mounted ? (
+          <AnimatePresence mode="popLayout" initial={false}>
+            {isDark ? (
+              <motion.div
+                key="moon"
+                initial={{ rotate: -90, scale: 0, opacity: 0 }}
+                animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                exit={{ rotate: 90, scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                className="flex items-center justify-center"
+              >
+                <Moon size={18} strokeWidth={1.5} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="sun"
+                initial={{ rotate: 90, scale: 0, opacity: 0 }}
+                animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                exit={{ rotate: -90, scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                className="flex items-center justify-center"
+              >
+                <Sun size={18} strokeWidth={1.5} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        ) : (
+          <span className="w-[18px] h-[18px]" />
+        )}
+      </button>
+    </div>
   );
 }
 
@@ -184,7 +277,6 @@ function ExpandedContent({
   const pathname = usePathname();
   const isNewChatActive = false; // Demo route temporarily disabled
   const isChatsActive = pathname === '/chats';
-  const isSavedActive = pathname === '/saved';
 
   // Starred conversations (pinned -> starred migration)
   const starredConversations = useMemo(
@@ -222,44 +314,47 @@ function ExpandedContent({
     <>
       {/* Scrollable area: nav + starred + recents */}
       <div className="flex-1 overflow-y-auto min-h-0">
-        {/* Nav */}
+        {/* Nav — primary group */}
         <nav className="flex flex-col gap-0.5">
           <NavItem
-            icon={<Plus size={20} strokeWidth={1.5} />}
+            icon={
+              <span className="w-[22px] h-[22px] rounded-full bg-[var(--sidebar-button-active-bg)] flex items-center justify-center shrink-0">
+                <Plus size={14} strokeWidth={2.5} />
+              </span>
+            }
             label="New chat"
             active={isNewChatActive}
             onClick={() => handleClick(() => router.push('/'))}
           />
           <NavItem
-            icon={<Search size={20} strokeWidth={1.5} />}
+            icon={<SearchIcon size={20} />}
             label="Search"
             onClick={() => handleClick(onSearchClick)}
           />
           <NavItem
-            icon={<MessageSquare size={20} strokeWidth={1.5} />}
+            icon={<Bookmark size={20} strokeWidth={1.5} />}
+            label="Saved"
+            active={pathname === '/saved'}
+            onClick={() => handleClick(() => router.push('/saved'))}
+          />
+        </nav>
+
+        {/* Nav — secondary group */}
+        <nav className="flex flex-col gap-0.5 mt-3">
+          <NavItem
+            icon={<ChatsIcon size={20} />}
             label="Chats"
             active={isChatsActive}
             onClick={() => handleClick(() => router.push('/chats'))}
           />
           <NavItem
-            icon={<FolderClosed size={20} strokeWidth={1.5} />}
+            icon={<ProjectsIcon size={20} />}
             label="Projects"
             onClick={() => handleClick()}
           />
           <NavItem
-            icon={<Bookmark size={20} strokeWidth={1.5} />}
-            label="Saved"
-            active={isSavedActive}
-            onClick={() => handleClick(() => router.push('/saved'))}
-          />
-          <NavItem
             icon={<ArtifactsIcon size={20} />}
             label="Artifacts"
-            onClick={() => handleClick()}
-          />
-          <NavItem
-            icon={<CodeIcon size={20} />}
-            label="Code"
             onClick={() => handleClick()}
           />
         </nav>
@@ -307,25 +402,7 @@ function ExpandedContent({
 
       {/* Bottom — pinned */}
       <div className="flex flex-col gap-0.5 shrink-0 pt-2">
-        <ThemeToggle />
-        <NavItem
-          icon={<Settings size={20} strokeWidth={1.5} />}
-          label="Settings"
-          onClick={() => handleClick()}
-        />
-        <div className="flex items-center gap-3 px-3 py-2 cursor-pointer rounded-lg hover:bg-[var(--surface-hover)] transition-colors">
-          <div className="w-7 h-7 rounded-full bg-[var(--accent-avatar)] shrink-0 flex items-center justify-center text-[12px] font-semibold text-white">
-            A
-          </div>
-          <div className="flex-1 min-w-0">
-            <span className="text-[14px] font-medium text-[var(--text-secondary)] truncate block">
-              Amir
-            </span>
-            <span className="text-[11px] text-[var(--text-ghost)] truncate block">
-              Max plan
-            </span>
-          </div>
-        </div>
+        <ProfileRow />
       </div>
     </>
   );
@@ -409,28 +486,22 @@ function CollapsedContent({
         <SidebarToggleIcon size={18} />
       </button>
 
-      {/* Nav icons */}
-      <nav className="flex flex-col gap-1 mb-auto">
+      {/* Nav icons — primary group */}
+      <nav className="flex flex-col gap-1">
         <NavItemCollapsed
-          icon={<Plus size={20} strokeWidth={1.5} />}
+          icon={
+            <span className="w-[22px] h-[22px] rounded-full bg-[var(--sidebar-button-active-bg)] flex items-center justify-center shrink-0">
+              <Plus size={14} strokeWidth={2.5} />
+            </span>
+          }
           label="New chat"
           active={isNewChatActive}
           onClick={() => router.push('/')}
         />
         <NavItemCollapsed
-          icon={<Search size={20} strokeWidth={1.5} />}
+          icon={<SearchIcon size={20} />}
           label="Search"
           onClick={onSearchClick}
-        />
-        <NavItemCollapsed
-          icon={<MessageSquare size={20} strokeWidth={1.5} />}
-          label="Chats"
-          active={isChatsActive}
-          onClick={() => router.push('/chats')}
-        />
-        <NavItemCollapsed
-          icon={<FolderClosed size={20} strokeWidth={1.5} />}
-          label="Projects"
         />
         <NavItemCollapsed
           icon={<Bookmark size={20} strokeWidth={1.5} />}
@@ -438,25 +509,31 @@ function CollapsedContent({
           active={isSavedActive}
           onClick={() => router.push('/saved')}
         />
+      </nav>
+
+      {/* Nav icons — secondary group */}
+      <nav className="flex flex-col gap-1 mt-3 mb-auto">
+        <NavItemCollapsed
+          icon={<ChatsIcon size={20} />}
+          label="Chats"
+          active={isChatsActive}
+          onClick={() => router.push('/chats')}
+        />
+        <NavItemCollapsed
+          icon={<ProjectsIcon size={20} />}
+          label="Projects"
+        />
         <NavItemCollapsed
           icon={<ArtifactsIcon size={20} />}
           label="Artifacts"
         />
-        <NavItemCollapsed
-          icon={<CodeIcon size={20} />}
-          label="Code"
-        />
       </nav>
 
-      {/* Bottom: theme toggle + settings + avatar */}
+      {/* Bottom: theme toggle + avatar */}
       <div className="flex flex-col gap-1 items-center mt-auto">
         <CollapsedThemeToggle />
-        <NavItemCollapsed
-          icon={<Settings size={20} strokeWidth={1.5} />}
-          label="Settings"
-        />
         <div
-          className="w-7 h-7 rounded-full bg-[var(--accent-avatar)] shrink-0 cursor-pointer flex items-center justify-center text-[12px] font-semibold text-white"
+          className="w-8 h-8 rounded-full bg-[var(--accent-avatar)] shrink-0 cursor-pointer flex items-center justify-center text-[13px] font-semibold text-white"
           role="button"
           aria-label="User profile"
         >
@@ -515,7 +592,7 @@ export function Sidebar({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="w-[260px] flex flex-col h-full py-3 px-3"
+              className="w-[260px] flex flex-col h-full pt-3 pb-0 px-3"
             >
               {/* Header: Claude wordmark + toggle */}
               <div className="flex items-center justify-between px-3 pb-3">

@@ -14,11 +14,12 @@ export function ChatInputCentered({ value, isTyping, onSend }: ChatInputCentered
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       <div
-        className="flex flex-col border-[0.5px] border-[var(--border-tertiary)] overflow-hidden"
+        className="flex flex-col overflow-hidden"
         style={{
           backgroundColor: 'var(--surface-input)',
           borderRadius: 'var(--chat-input-radius)',
           boxShadow: 'var(--shadow-md)',
+          border: '1px solid #5A5B56',
         }}
       >
         {/* Text area row */}
@@ -44,34 +45,36 @@ export function ChatInputCentered({ value, isTyping, onSend }: ChatInputCentered
 
         {/* Toolbar row */}
         <div className="flex items-center justify-between px-3 pb-3">
+          {/* Left: attach */}
+          <button
+            aria-label="Attach file"
+            className="flex items-center justify-center w-8 h-8 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
+          >
+            <Plus size={18} strokeWidth={1.5} />
+          </button>
+
+          {/* Right: model selector + send */}
           <div className="flex items-center gap-2">
             <button
-              aria-label="Attach file"
-              className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
+              className="flex items-center gap-1 px-2 h-7 rounded-[var(--radius-sm)] text-[12px] font-medium text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
+              aria-label="Select model"
             >
-              <Plus size={18} strokeWidth={1.5} />
+              <span>Opus 4.6</span>
+              <ChevronDown size={12} />
             </button>
 
             <button
-              className="flex items-center gap-1 px-2 h-9 sm:h-7 rounded-[var(--radius-sm)] text-[12px] font-medium text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] transition-colors focus-ring"
-              aria-label="Select model"
+              aria-label="Send message"
+              onClick={onSend}
+              className="flex items-center justify-center w-8 h-8 text-white transition-opacity hover:opacity-90 focus-ring"
+              style={{
+                backgroundColor: 'var(--accent-primary)',
+                borderRadius: 'var(--interactive-radius)',
+              }}
             >
-              <span>Sonnet 4.5</span>
-              <ChevronDown size={12} />
+              <ArrowUp size={16} strokeWidth={2} />
             </button>
           </div>
-
-          <button
-            aria-label="Send message"
-            onClick={onSend}
-            className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 text-white transition-opacity hover:opacity-90 focus-ring"
-            style={{
-              backgroundColor: 'var(--accent-primary)',
-              borderRadius: 'var(--interactive-radius)',
-            }}
-          >
-            <ArrowUp size={16} strokeWidth={2} />
-          </button>
         </div>
       </div>
     </div>

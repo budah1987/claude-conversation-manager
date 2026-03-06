@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { Pencil, GraduationCap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -196,20 +197,20 @@ export default function Home() {
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto relative flex flex-col px-4 sm:px-6">
+      <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden relative flex flex-col px-4 sm:px-6">
         <AnimatePresence mode="wait">
           {!hasSent ? (
             /* ── Pre-send: greeting + input + pills ── */
             <motion.div
               key="pre-send"
-              className="flex-1 flex flex-col items-center justify-center"
+              className="flex-1 min-w-0 flex flex-col items-center justify-center"
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.25 }}
             >
-              <div className="w-full max-w-2xl flex flex-col items-center gap-8">
+              <div className="w-full max-w-2xl min-w-0 flex flex-col items-center gap-8">
                 {/* Greeting */}
                 <h1
-                  className="text-[28px] md:text-[32px] font-normal text-[var(--text-primary)] flex items-center gap-2"
+                  className="text-[28px] md:text-[32px] font-normal text-[var(--text-secondary)] flex items-center gap-2"
                   style={{ fontFamily: 'var(--font-serif)' }}
                 >
                   <ClaudeThinkingIcon size={32} />
@@ -224,44 +225,66 @@ export default function Home() {
                 />
 
                 {/* Quick action pills */}
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="w-full flex flex-wrap items-center justify-center gap-2">
                   <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-[6px] rounded-lg border border-[#5A5B56] bg-[var(--bg-secondary)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
                     aria-label="Write"
                   >
-                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    <Pencil size={15} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
                     Write
                   </button>
 
                   <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-[6px] rounded-lg border border-[#5A5B56] bg-[var(--bg-secondary)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
                     aria-label="Learn"
                   >
-                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    <GraduationCap size={15} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
                     Learn
                   </button>
 
                   <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-[6px] rounded-lg border border-[#5A5B56] bg-[var(--bg-secondary)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
                     aria-label="From Drive"
                   >
-                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    {/* Google Drive logo */}
+                    <svg width="16" height="16" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" className="shrink-0" aria-hidden="true">
+                      <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                      <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+                      <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                      <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                      <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                      <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                    </svg>
                     From Drive
                   </button>
 
                   <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-[6px] rounded-lg border border-[#5A5B56] bg-[var(--bg-secondary)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
                     aria-label="From Calendar"
                   >
-                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    {/* Google Calendar logo */}
+                    <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="shrink-0" aria-hidden="true">
+                      <rect x="2" y="5" width="20" height="17" rx="2" fill="white" stroke="#dadce0" strokeWidth="1.2"/>
+                      <rect x="2" y="5" width="20" height="7" fill="#1a73e8"/>
+                      <rect x="2" y="12" width="20" height="10" rx="0" fill="white"/>
+                      <text x="12" y="21" textAnchor="middle" fontFamily="'Google Sans',Arial,sans-serif" fontSize="7.5" fontWeight="700" fill="#1a73e8">31</text>
+                      <rect x="7.5" y="2" width="2" height="5" rx="1" fill="#1a73e8"/>
+                      <rect x="14.5" y="2" width="2" height="5" rx="1" fill="#1a73e8"/>
+                    </svg>
                     From Calendar
                   </button>
 
                   <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-full border-[0.5px] border-[var(--border-tertiary)] bg-[var(--surface-card)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-[6px] rounded-lg border border-[#5A5B56] bg-[var(--bg-secondary)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
                     aria-label="From Gmail"
                   >
-                    <span className="w-4 h-4 rounded bg-[var(--text-ghost)] opacity-20" aria-hidden="true" />
+                    {/* Gmail logo — M envelope, official colors */}
+                    <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="shrink-0" aria-hidden="true">
+                      <path d="M2 6 L2 18 L6 18 L6 10.5 L12 14.5 L18 10.5 L18 18 L22 18 L22 6 L12 12 Z" fill="#4285F4"/>
+                      <path d="M2 6 L2 18 L6 18 L6 10.5 L12 14.5 L12 12 Z" fill="#34A853"/>
+                      <path d="M18 10.5 L18 18 L22 18 L22 6 L12 12 L12 14.5 Z" fill="#FBBC05"/>
+                      <path d="M2 6 L12 12 L22 6 Z" fill="#EA4335"/>
+                    </svg>
                     From Gmail
                   </button>
                 </div>
