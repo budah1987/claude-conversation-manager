@@ -238,7 +238,7 @@ export default function Home() {
                     className="flex items-center gap-1.5 px-3 py-[6px] rounded-lg border border-[#5A5B56] bg-[var(--bg-secondary)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
                     aria-label="Learn"
                   >
-                    <GraduationCap size={15} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
+                    <GraduationCap size={16} strokeWidth={1.5} className="shrink-0" aria-hidden="true" />
                     Learn
                   </button>
 
@@ -263,13 +263,15 @@ export default function Home() {
                     aria-label="From Calendar"
                   >
                     {/* Google Calendar logo */}
-                    <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="shrink-0" aria-hidden="true">
-                      <rect x="2" y="5" width="20" height="17" rx="2" fill="white" stroke="#dadce0" strokeWidth="1.2"/>
-                      <rect x="2" y="5" width="20" height="7" fill="#1a73e8"/>
-                      <rect x="2" y="12" width="20" height="10" rx="0" fill="white"/>
-                      <text x="12" y="21" textAnchor="middle" fontFamily="'Google Sans',Arial,sans-serif" fontSize="7.5" fontWeight="700" fill="#1a73e8">31</text>
-                      <rect x="7.5" y="2" width="2" height="5" rx="1" fill="#1a73e8"/>
-                      <rect x="14.5" y="2" width="2" height="5" rx="1" fill="#1a73e8"/>
+                    <svg width="16" height="16" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="shrink-0" aria-hidden="true">
+                      <path fill="#4285F4" d="M44 24H24v20h16a4 4 0 004-4V24z"/>
+                      <path fill="#34A853" d="M4 40a4 4 0 004 4h16V24H4v16z"/>
+                      <path fill="#FBBC04" d="M44 8H24v16h20V8z"/>
+                      <path fill="#EA4335" d="M4 24h20V8H8a4 4 0 00-4 4v12z"/>
+                      <path fill="#4285F4" d="M24 8h20V4a4 4 0 00-4-4H24v8z" opacity="0"/>
+                      <rect x="14" y="0" width="4" height="10" rx="2" fill="#4285F4"/>
+                      <rect x="30" y="0" width="4" height="10" rx="2" fill="#4285F4"/>
+                      <text x="24" y="38" textAnchor="middle" fontFamily="'Google Sans',Arial,sans-serif" fontSize="13" fontWeight="700" fill="#4285F4">31</text>
                     </svg>
                     From Calendar
                   </button>
@@ -278,12 +280,13 @@ export default function Home() {
                     className="flex items-center gap-1.5 px-3 py-[6px] rounded-lg border border-[#5A5B56] bg-[var(--bg-secondary)] text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
                     aria-label="From Gmail"
                   >
-                    {/* Gmail logo — M envelope, official colors */}
-                    <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="shrink-0" aria-hidden="true">
-                      <path d="M2 6 L2 18 L6 18 L6 10.5 L12 14.5 L18 10.5 L18 18 L22 18 L22 6 L12 12 Z" fill="#4285F4"/>
-                      <path d="M2 6 L2 18 L6 18 L6 10.5 L12 14.5 L12 12 Z" fill="#34A853"/>
-                      <path d="M18 10.5 L18 18 L22 18 L22 6 L12 12 L12 14.5 Z" fill="#FBBC05"/>
-                      <path d="M2 6 L12 12 L22 6 Z" fill="#EA4335"/>
+                    {/* Gmail logo — official SVG */}
+                    <svg width="16" height="12" viewBox="0 0 58 44" xmlns="http://www.w3.org/2000/svg" className="shrink-0" aria-hidden="true">
+                      <path fill="#4285F4" d="M6 44h10V22L0 11v27a6 6 0 006 6z"/>
+                      <path fill="#34A853" d="M42 44h10a6 6 0 006-6V11L42 22v22z"/>
+                      <path fill="#FBBC05" d="M42 4v18l16-11V7a4.5 4.5 0 00-7.2-3.6L42 4z"/>
+                      <path fill="#EA4335" d="M16 22V4l13 9 13-9v18L29 31 16 22z"/>
+                      <path fill="#C5221F" d="M0 7v4l16 11V4L7.2.4A4.5 4.5 0 000 4v3z"/>
                     </svg>
                     From Gmail
                   </button>
